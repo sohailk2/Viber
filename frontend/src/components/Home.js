@@ -17,7 +17,7 @@ class Home extends React.Component {
     spotifyFailure = (response) => console.error(response);
 
     componentDidMount() {
-        document.body.style.backgroundColor = "#DADADA";
+        document.body.style.backgroundColor = "#3D138D";
     }
 
     spotifyLogin = (clientId, callback) => {

@@ -24,7 +24,7 @@ class App extends React.Component {
 
     this.state = {
       token: null,
-      tempToken: "BQCb9BsaeFRV9oyCLAtROzMWebIgLvA5pOcHblqShF6gaVLPEXWvjkoF0H-IXb1KXczz10MgcptLYiHnfrkymDw9xOc_ACB3jvZi24cK0zxIGmVIRGdImH__Tv0owrGOk3h_l2l9kf6PpqBStTS9ic3SIdNL-Js8"
+      // token: "BQCb9BsaeFRV9oyCLAtROzMWebIgLvA5pOcHblqShF6gaVLPEXWvjkoF0H-IXb1KXczz10MgcptLYiHnfrkymDw9xOc_ACB3jvZi24cK0zxIGmVIRGdImH__Tv0owrGOk3h_l2l9kf6PpqBStTS9ic3SIdNL-Js8"
     };
 
   }
@@ -35,8 +35,7 @@ class App extends React.Component {
 
   render() {
     return (
-      <SpotifyApiContext.Provider value={this.state.tempToken}>
-        {/* <SpotifyApiContext.Provider value={this.state.token}> */}
+        <SpotifyApiContext.Provider value={this.state.token}>
         <Grommet theme={{ global: { colors: { doc: '#ff99cc' } } }}
           style={{
             position: 'absolute', left: '50%', top: '50%',
@@ -56,7 +55,7 @@ class App extends React.Component {
 
               <Route path="/page1">
                 {/* <UserInfo token={this.state.tempToken} /> */}
-                <UserInfo token={this.state.tempToken} />
+                <UserInfo token={this.state.token} />
 
                 <Link to="/search">
                   <Button primary label="Search"/>
