@@ -1,0 +1,30 @@
+{
+  "country": "US",
+  "display_name": "Charlie Jung",
+  "email": "charliecjung@gmail.com",
+  "explicit_content": {
+    "filter_enabled": false,
+    "filter_locked": false
+  },
+  "external_urls": {
+    "spotify": "https://open.spotify.com/user/1280887055"
+  },
+  "followers": {
+    "href": null,
+    "total": 19
+  },
+  "href": "https://api.spotify.com/v1/users/1280887055",
+  "id": "1280887055",
+  "images": [
+    {
+      "height": null,
+      "url": "https://scontent-ort2-1.xx.fbcdn.net/v/t1.0-1/p320x320/120291095_3278697488851440_5367155945480700383_n.jpg?_nc_cat=105&ccb=2&_nc_sid=0c64ff&_nc_ohc=1BJDweGuglwAX-dAyJV&_nc_oc=AQnofCMWxqbLTmeL-Be2igmAgA7j9dv_GRYUAFAn7vZwG-FJxlDx2n0fARPK2ex7Wqc&_nc_ht=scontent-ort2-1.xx&tp=6&oh=4aae24ba8baf9ae03bde8c63f5a9b420&oe=5FBA1FA4",
+      "width": null
+    }
+  ],
+  "product": "open",
+  "type": "user",
+  "uri": "spotify:user:1280887055"
+}
+
+
