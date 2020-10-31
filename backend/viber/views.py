@@ -20,9 +20,11 @@ def search(request):
     return JsonResponse(returnVal)
 
 
-
+#keep an internal db within django:
+#https://docs.djangoproject.com/en/3.1/topics/db/sql/
+https://docs.djangoproject.com/en/3.1/topics/db/sql/
 def addPerson(request):
-
+   for p in Person.objects.raw('SELECT * FROM PERSONS_TABLE'):
 
 def deletePerson(request):
 
