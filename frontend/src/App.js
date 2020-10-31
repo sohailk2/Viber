@@ -15,6 +15,7 @@ import { User, Artist } from 'react-spotify-api'
 import axios from 'axios';
 
 import Search from './components/Search.js'
+import Results from './components/Results.js'
 
 
 class App extends React.Component {
@@ -66,6 +67,9 @@ class App extends React.Component {
               <Route path="/search">
                 <Search/>
               </Route>
+
+              <Route path="/playlist/:id" component={Results}/>
+                
               <Route path="/">
                 <Home />
               </Route>
