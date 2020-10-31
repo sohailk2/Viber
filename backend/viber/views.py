@@ -18,3 +18,12 @@ def search(request):
                 {"name": "song4" +  str(random.randint(1,20)), "artist": "artist4"}]}
 
     return JsonResponse(returnVal)
+
+
+
+def addPerson(request):
+
+
+def deletePerson(request):
+
+def updatePerson(request):
