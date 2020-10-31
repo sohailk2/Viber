@@ -1,14 +1,14 @@
 import logo from './logo.svg';
 import './App.css';
 import Home from './components/Home.js'
-import { Button, Grommet, Text, Nav, Anchor } from 'grommet';
+import { Button, Grommet, Text, Nav, Anchor, Header, Menu } from 'grommet';
 import {
   BrowserRouter as Router,
   Switch,
   Route,
   Link,
   Redirect,
-  useHistory
+  withRouter
 } from "react-router-dom";
 
 import Login from './components/Login';
@@ -44,58 +44,67 @@ class App extends React.Component {
     return (
       <SpotifyApiContext.Provider value={this.state.token}>
 
-        <Nav direction="row" background="brand" pad="medium">
+        {/* <Nav direction="row" background="brand" pad="medium">
           <Anchor onClick={() => { this.setState({ redirect: '/search' }) }} label="Search" />
           <Anchor href="#" label="For Example" />
-        </Nav>
+        </Nav> */}
 
 
         <Grommet theme={{ global: { colors: { doc: '#ff99cc' } } }}
-          style={{
-            position: 'absolute', left: '50%', top: '50%',
-            transform: 'translate(-50%, -50%)'
-          }}>
+        >
 
           <Router>
 
-            <Switch>
+            <Header background="brand">
+              <Nav direction="row" background="brand" pad="medium">
+                <Link to="/userinfo" style={{ textDecoration: 'none' }}>
+                  <Anchor label="User Info" />
+                </Link>
 
-              <Route path="/callback">
-                <Login updateUser={this.updateUser} />
-              </Route>
+                <Link to="/search" style={{ textDecoration: 'none' }}>
+                  <Anchor label="Search" />
+                </Link>
 
-              {this.state.token != null ?
-                <>
-                  <Route path="/a">
-                    hi
+              </Nav>
+            </Header>
+
+            <div style={{
+              position: 'absolute', left: '50%', top: '60%',
+              transform: 'translate(-50%, -50%)'
+            }}>
+
+
+              <Switch>
+
+                <Route path="/callback">
+                  <Login updateUser={this.updateUser} />
                 </Route>
 
-                  <Route path="/page1">
+                {this.state.token == null ?
+                  <Home/> :
+                  <>
+                    <Route path="/userinfo">
 
 
-                    {/* <UserInfo token={this.state.tempToken} /> */}
-                    <UserInfo token={this.state.token} />
+                      {/* <UserInfo token={this.state.tempToken} /> */}
+                      <UserInfo token={this.state.token} />
 
-                    <Link to="/search">
+                      {/* <Link to="/search">
                       <Button primary label="Search" />
-                    </Link>
+                    </Link> */}
 
 
-                  </Route>
+                    </Route>
 
-                  <Route path="/search">
-                    <Search />
-                  </Route>
+                    <Route path="/search">
+                      <Search/>
+                    </Route>
 
-                  <Route path="/playlist/:id" component={Results} />
-                </>
-                :
-                <Route path="/">
-                  <Home />
-                </Route>
-              }
-            </Switch>
-
+                    <Route path="/playlist/:id" component={Results} />
+                  </>
+                }
+              </Switch>
+            </div>
           </Router>
 
         </Grommet>

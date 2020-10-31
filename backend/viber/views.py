@@ -47,7 +47,11 @@ def getSearches(request, id):
     searches = {'data': [
         {"id" : "1", "name": "searched song 1", "artist": "artist1"},
         {"id" : "2", "name": "searched song 1", "artist": "artist1"},
-        {"id" : "3", "name": "searched song 3", "artist": "artist1"}
+        {"id" : "3", "name": "searched song 3", "artist": "artist1"},
+        {"id" : "4", "name": "searched song 3", "artist": "artist1"},
+        {"id" : "5", "name": "searched song 3", "artist": "artist1"},
+        {"id" : "6", "name": "searched song 3", "artist": "artist1"},
+        {"id" : "7", "name": "searched song 3", "artist": "artist1"}
 
     ]}
     return JsonResponse(searches)
@@ -57,5 +61,8 @@ def getFriends(request, id):
     searches = {'data': [
         {"id" : "1", "name": "friend 1", "artist": "artist1"},
         {"id" : "2", "name": "friend 2", "artist": "artist1"},
+        {"id" : "3", "name": "friend 2", "artist": "artist1"},
+        {"id" : "4", "name": "friend 2", "artist": "artist1"},
+        {"id" : "5", "name": "friend 2", "artist": "artist1"}
     ]}
     return JsonResponse(searches)
