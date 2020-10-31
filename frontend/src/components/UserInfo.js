@@ -38,17 +38,18 @@ export default function UserInfo(props) {
                 <Box
                     direction="row"
                     // border={{ color: 'brand', size: 'large' }}
-                    pad="small"
+                    pad="medium"
                 >
                     <Box margin="large" pad="medium" background="dark-3">
                         <div>
-                            <h3>Previous Searches</h3>
+                            <h2>Previous Searches</h2>
                             <PreviousSearches userID="1"/>
                         </div>
                     </Box>
+                    
                     <Box margin="large" pad="medium" background="dark-3">
                         <div>
-                            <h3>Friends</h3>
+                            <h2>Friends</h2>
                             <DisplayFriends userID="1"/>
                         </div>
                     </Box>
