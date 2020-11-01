@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from viber.models import Songs
+from viber.models import Songs, ArtistTerm
 import json
 
 
@@ -23,6 +23,8 @@ def search(request):
         songName = "Silent Night"
         #queries the database for the song and picks the ones with the most familiar artists
         song_list = Songs.objects.raw('SELECT track_id, title FROM songs WHERE title = %s ORDER BY artist_familiarity DESC', [songName])
+        # a = ArtistTerm.objects.raw('SELECT artist_id from artist_term WHERE term = "country rock"')
+        # print(len(list(a)))
 
         if(len(list(song_list)) <= 4):
             returnVal = {"data": [

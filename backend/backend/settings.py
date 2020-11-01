@@ -88,9 +88,19 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    },
+    'genredb': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'artist_term.db',
+    },
+    'tracksdb': {
+        'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'track_metadata.db',
-    }
+    },
 }
+
+DATABASE_ROUTERS = ['backend.routers.Routers']
 
 
 # Password validation

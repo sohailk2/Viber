@@ -22,6 +22,53 @@ class Songs(models.Model):
     class Meta:
         managed = False
         db_table = 'songs'
+        app_label = 'tracks'
 
     def __str__(self):
         return self
+
+
+class ArtistMbtag(models.Model):
+    artist = models.ForeignKey('Artists', models.DO_NOTHING, blank=True, null=True)
+    mbtag = models.ForeignKey('Mbtags', models.DO_NOTHING, db_column='mbtag', blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'artist_mbtag'
+        app_label = 'genre'
+
+class ArtistTerm(models.Model):
+    # artist = models.ForeignKey('Artists', models.DO_NOTHING, blank=True, null=True)
+    # term = models.ForeignKey('Terms', models.DO_NOTHING, db_column='term', blank=True, null=True)
+    artist = models.ForeignKey('Artists', models.DO_NOTHING, blank=True, null=True, primary_key=True)
+    term = models.ForeignKey('Terms', models.DO_NOTHING, db_column='term', blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'artist_term'
+        app_label = 'genre'
+
+class Artists(models.Model):
+    artist_id = models.TextField(primary_key=True, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'artists'
+        app_label = 'genre'
+
+class Mbtags(models.Model):
+    mbtag = models.TextField(primary_key=True, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'mbtags'
+        app_label = 'genre'
+
+class Terms(models.Model):
+    term = models.TextField(primary_key=True, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'terms'
+        app_label = 'genre'
+
