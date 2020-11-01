@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from viber.models import Songs
 import json
 
 
@@ -18,14 +19,22 @@ def search(request):
         body = json.loads(request.body)
         songName = body["songName"]
         # call search function to da
+        
+        songName = "Silent Night"
+        #queries the database for the song and picks the ones with the most familiar artists
+        song_list = Songs.objects.raw('SELECT track_id, title FROM songs WHERE title = %s ORDER BY artist_familiarity DESC', [songName])
 
-        returnVal = {"data": [
-                {"id" : 1, "name": "song" +  str(random.randint(1,20)), "artist": "artist1"}, 
-                {"id" : 2, "name": "song2" +  str(random.randint(1,20)), "artist": "artist2"}, 
-                {"id" : 3, "name": "song3" +  str(random.randint(1,20)), "artist": "artist3"}, 
-                {"id" : 4, "name": "song4" +  str(random.randint(1,20)), "artist": "artist4"}]}
+        if(len(list(song_list)) <= 4):
+            returnVal = {"data": [
+                {"id" : 1, "name": song_list[0].title, "artist": song_list[0].artist_name}]}
+        else:
+            returnVal = {"data": [
+                    {"id" : 1, "name": song_list[0].title, "artist": song_list[0].artist_name}, 
+                    {"id" : 2, "name": song_list[1].title, "artist": song_list[1].artist_name}, 
+                    {"id" : 3, "name": song_list[2].title, "artist": song_list[2].artist_name}, 
+                    {"id" : 4, "name": song_list[3].title, "artist": song_list[3].artist_name}]}
 
-        return JsonResponse(returnVal)
+            return JsonResponse(returnVal)
     else:
         return {}
 
