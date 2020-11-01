@@ -21,10 +21,8 @@ def search(request):
         # call search function to da
         
         songName = "Silent Night"
-        #queries the database for the song and picks the ones with the most familiar artists
+        #QUERY the database for the song and picks the ones with the most familiar artists
         song_list = Songs.objects.raw('SELECT track_id, title FROM songs WHERE title = %s ORDER BY artist_familiarity DESC', [songName])
-        # a = ArtistTerm.objects.raw('SELECT artist_id from artist_term WHERE term = "country rock"')
-        # print(len(list(a)))
 
         if(len(list(song_list)) <= 4):
             returnVal = {"data": [
@@ -42,15 +40,38 @@ def search(request):
 
 def getPlaylist(request, id):
 
+    #will be replaced with clicked item
+    songName = "Silent Night"
+    artistName = "Mariah Carey"
+
+    #find artist_id for given track
+    queryVal = 'SELECT track_id, artist_id FROM songs WHERE title = "' + songName + '" AND artist_name = "' + artistName + '"'
+    query = Songs.objects.raw(queryVal)
+    artistID = query[0].artist_id
+
+    #find genre (term) given artist_id
+    query2 = ArtistTerm.objects.raw('SELECT artist_id, term FROM artist_term WHERE artist_id = %s', [artistID])
+    term = query2[0].term
+
+    #find other artist_ids with same term
+    query3Val = 'SELECT artist_id, term FROM artist_term WHERE term = "' + term + '"'
+    query3 = ArtistTerm.objects.raw(query3Val)
+    common = query3[0].artist_id
+
+    #SET OPERATION: union of familiar artists and ones with similar genre
+    query4Val = 'SELECT track_id, title, artist_name FROM songs WHERE artist_familiarity >= 1.0 UNION SELECT track_id, title, artist_name FROM songs WHERE artist_id = "' + str(common) + '"'
+    query4 = Songs.objects.raw(query4Val)
+
     errorResponse = {'error': True}
 
     sampleResponse = {"data": [
-        {"id":1, "name": "song1", "artist": "artist"},
-        {"id":2, "name": "song2", "artist": "artist"}
+        {"id":1, "name": query4[0].title, "artist": query4[0].artist_name},
+        {"id":2, "name": query4[1].title, "artist": query4[1].artist_name}
     ]}
     return JsonResponse(sampleResponse)
 
 def getSong(request, id):
+    #clicked song + artist name
     song = {"id" : id, "name": "song" + str(id), "artist": "artist1"}
     return JsonResponse(song)
 

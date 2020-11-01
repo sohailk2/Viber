@@ -38,10 +38,8 @@ class ArtistMbtag(models.Model):
         app_label = 'genre'
 
 class ArtistTerm(models.Model):
-    # artist = models.ForeignKey('Artists', models.DO_NOTHING, blank=True, null=True)
-    # term = models.ForeignKey('Terms', models.DO_NOTHING, db_column='term', blank=True, null=True)
-    artist = models.ForeignKey('Artists', models.DO_NOTHING, blank=True, null=True, primary_key=True)
-    term = models.ForeignKey('Terms', models.DO_NOTHING, db_column='term', blank=True, null=True)
+    artist_id = models.TextField(primary_key=True, blank=True, null=True)
+    term = models.TextField(blank=True, null=True)
 
     class Meta:
         managed = False
