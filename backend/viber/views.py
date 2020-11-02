@@ -27,7 +27,7 @@ def search(request):
 
         return JsonResponse(returnVal)
     else:
-        return {}
+        return JsonResponse({})
 
 def getPlaylist(request, id):
 
@@ -66,3 +66,12 @@ def getFriends(request, id):
         {"id" : "5", "name": "friend 2", "artist": "artist1"}
     ]}
     return JsonResponse(searches)
+
+@csrf_exempt #remove the security checks for post request
+def delFriend(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        userID = body["currUser"]
+        friendID = body["friend"]
+
+    return JsonResponse({})

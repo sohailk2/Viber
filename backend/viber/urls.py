@@ -7,8 +7,9 @@ urlpatterns = [
     path('search/', views.search, name='search'),
     path('getPlaylist/<int:id>/', views.getPlaylist, name='getPlaylist'),
     path('getSong/<int:id>/', views.getSong, name='getSong'),
-    path('getSearches/<int:id>/', views.getSearches, name='getSearches'),
-    path('getFriends/<int:id>/', views.getFriends, name='getFriends')
+    path('getSearches/<str:id>/', views.getSearches, name='getSearches'),
+    path('getFriends/<str:id>/', views.getFriends, name='getFriends'),
+    path('delFriend/', views.delFriend, name='delFriend')
 
 
 ]

@@ -48,7 +48,7 @@ export default function UserInfo(props) {
                         <Box style={{ height: '500px', width: '80%' }} overflow="scroll" margin="large" pad="medium" background="dark-3">
                             <div>
                                 <h2>Previous Searches</h2>
-                                <PreviousSearches userID="1" />
+                                <PreviousSearches userInfo={userInfo} />
                             </div>
                         </Box>
 
@@ -60,7 +60,7 @@ export default function UserInfo(props) {
                                 </Box>
 
                                 <Box overflow="scroll">
-                                    <DisplayFriends userID="1" />
+                                    <DisplayFriends userInfo={userInfo} history={history}/>
                                 </Box>
                             </div>
                         </Box>
@@ -82,7 +82,7 @@ function PreviousSearches(props) {
     const [searches, setSearches] = useState(null);
 
     useEffect(() => {
-        axios.get(`http://127.0.0.1:8000/viber/getSearches/${props.userID}/`)
+        axios.get(`http://127.0.0.1:8000/viber/getSearches/${props.userInfo.display_name}/`)
             .then(res => {
                 console.log(res.data);
                 setSearches(res.data.data)
@@ -106,7 +106,7 @@ function DisplayFriends(props) {
     const [friends, setFriends] = useState(null);
 
     useEffect(() => {
-        axios.get(`http://127.0.0.1:8000/viber/getFriends/${props.userID}/`)
+        axios.get(`http://127.0.0.1:8000/viber/getFriends/${props.userInfo.display_name}/`)
             .then(res => {
                 console.log(res.data);
                 setFriends(res.data.data)
@@ -117,28 +117,40 @@ function DisplayFriends(props) {
         return ("LOADING...")
     } else {
         return (
-            friends.map((friend, index) => (<Friend key={friend.id} friend={friend} />))
+            friends.map((friend, index) => (<Friend key={friend.id} currUser={props.userInfo} friend={friend} history={props.history}/>))
         )
     }
 }
 
 function Friend(props) {
+
+    const [confirmDelete, setConfirmDelete] = useState(false);
+
+    let deleteFriend = () => {
+        axios.post(`http://127.0.0.1:8000/viber/delFriend/`, {currUser: props.currUser.display_name, friend: props.friend.id})
+        .then(res => {
+            props.history.push({ pathname: "/empty" });
+            props.history.replace({ pathname: "/userinfo" });
+        }) 
+
+    }
+
     return (
         <Box margin="small" pad="small" background="light-3">
             <h3>{props.friend.name}</h3>
-            <Button hoverIndicator={true} color="status-error" label="Delete" />
-            {/* <Box direction="row">
-                <Box pad={{ right: "55px" }}>idk other info???</Box>
-            </Box> */}
+            
+            {confirmDelete ? 
+                <span>Confirm Delete<Button hoverIndicator={true} color="status-error" label="Yes" onClick={() => {deleteFriend()}}/></span>
+                :
+                <Button hoverIndicator={true} color="status-error" label="Delete" onClick={() => {setConfirmDelete(true)}}/>
+            }
+
 
         </Box>
     )
 }
 
 function AddFriend() {
-    {/* <h3>Enter UserID</h3>
-                                    
-                                    <Button hoverIndicator={true} color="status-ok" label="Add Friend" /> */}
 
     const [value, setValue] = React.useState({});
     return (
