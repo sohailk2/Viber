@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Text, Grid, Box, Button, InfiniteScroll, Form, FormField, TextInput } from 'grommet';
+import { Text, Grid, Box, Button, Anchor, Form, FormField, TextInput } from 'grommet';
 import { useHistory } from "react-router-dom";
 
 
@@ -37,7 +37,7 @@ export default function UserInfo(props) {
             {userInfo ?
 
                 <div>
-                    <h1>Hello <Text color="brand">{userInfo.display_name}</Text></h1>
+                    <h1>Hello <Anchor target="_blank" href={userInfo.external_urls.spotify}><Text size="xlarge" color="brand">{userInfo.display_name}</Text></Anchor></h1>
                     {/* {JSON.stringify(userInfo)} */}
 
                     <Box
