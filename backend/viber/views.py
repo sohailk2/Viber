@@ -8,6 +8,52 @@ import json
 
 import random
 
+sampleSongs = {'data': [
+        {
+            "track_id" : "1", "title": "Stronger", "song_id": "1", 
+            "release": "2018", "artist_id": "1", "artist_mbid" : "1", 
+            "artist_name" : "Kanye West", "duration" : "3m", 
+            "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
+            "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
+        },
+        {
+            "track_id" : "2", "title": "One Dance", "song_id": "1", 
+            "release": "2016", "artist_id": "1", "artist_mbid" : "1", 
+            "artist_name" : "Drake", "duration" : "3m", 
+            "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
+            "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
+        },
+        {
+            "track_id" : "3", "title": "Kill Em With Kindess", "song_id": "1", 
+            "release": "2012", "artist_id": "1", "artist_mbid" : "1", 
+            "artist_name" : "Selena Gomez", "duration" : "3m", 
+            "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
+            "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
+        },
+        {
+            "track_id" : "4", "title": "The Hills", "song_id": "1", 
+            "release": "2017", "artist_id": "1", "artist_mbid" : "1", 
+            "artist_name" : "The Weeknd", "duration" : "3m", 
+            "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
+            "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
+        },
+        {
+            "track_id" : "5", "title": "Lemonade", "song_id": "1", 
+            "release": "2020", "artist_id": "1", "artist_mbid" : "1", 
+            "artist_name" : "Gunna", "duration" : "3m", 
+            "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
+            "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
+        }
+
+    ]}
+
+sampleFriends = {'data': [
+        {"id" : "1", "display_name": "sohail"},
+        {"id" : "2", "display_name": "mesa"},
+        {"id" : "3", "display_name": "mihika"},
+        {"id" : "4", "display_name": "charlie"},
+        {"id" : "5", "display_name": "abdu"}
+    ]}
 
 def index(request):
     return HttpResponse("Hello, world. You're at the viber index.")
@@ -20,23 +66,24 @@ def search(request):
         songName = body["songName"]
         # call search function to da
         
-        songName = "Silent Night"
+        # songName = "Silent Night"
         #QUERY the database for the song and picks the ones with the most familiar artists
         song_list = Songs.objects.raw('SELECT track_id, title FROM songs WHERE title = %s ORDER BY artist_familiarity DESC', [songName])
 
+        # returnVal = sampleSongs
         if(len(list(song_list)) <= 4):
             returnVal = {"data": [
-                {"id" : 1, "name": song_list[0].title, "artist": song_list[0].artist_name}]}
+                {"track_id" : song_list[0].track_id, "name": song_list[0].title, "artist": song_list[0].artist_name}]}
         else:
             returnVal = {"data": [
-                    {"id" : 1, "name": song_list[0].title, "artist": song_list[0].artist_name}, 
-                    {"id" : 2, "name": song_list[1].title, "artist": song_list[1].artist_name}, 
-                    {"id" : 3, "name": song_list[2].title, "artist": song_list[2].artist_name}, 
-                    {"id" : 4, "name": song_list[3].title, "artist": song_list[3].artist_name}]}
+                    {"track_id" : song_list[0].title, "name": song_list[0].title, "artist": song_list[0].artist_name}, 
+                    {"track_id" : song_list[0].title, "name": song_list[1].title, "artist": song_list[1].artist_name}, 
+                    {"track_id" : song_list[0].title, "name": song_list[2].title, "artist": song_list[2].artist_name}, 
+                    {"track_id" : song_list[0].title, "name": song_list[3].title, "artist": song_list[3].artist_name}]}
 
             return JsonResponse(returnVal)
     else:
-        return {}
+        return JsonResponse({})
 
 def getPlaylist(request, id):
 
@@ -62,8 +109,9 @@ def getPlaylist(request, id):
     query4Val = 'SELECT track_id, title, artist_name FROM songs WHERE artist_familiarity >= 1.0 UNION SELECT track_id, title, artist_name FROM songs WHERE artist_id = "' + str(common) + '"'
     query4 = Songs.objects.raw(query4Val)
 
-    errorResponse = {'error': True}
-
+    #sampleResponse = sampleSongs
+    #return JsonResponse(sampleResponse)
+  
     sampleResponse = {"data": [
         {"id":1, "name": query4[0].title, "artist": query4[0].artist_name},
         {"id":2, "name": query4[1].title, "artist": query4[1].artist_name}
@@ -71,23 +119,39 @@ def getPlaylist(request, id):
     return JsonResponse(sampleResponse)
 
 def getSong(request, id):
-    #clicked song + artist name
-    song = {"id" : id, "name": "song" + str(id), "artist": "artist1"}
-    return JsonResponse(song)
+    # song = {
+    #         "track_id" : "1", "title": "Stronger", "song_id": "1", 
+    #         "release": "2018", "artist_id": "1", "artist_mbid" : "1", 
+    #         "artist_name" : "Kanye West", "duration" : "3m", 
+    #         "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
+    #         "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
+    #     }
+    song = sampleSongs["data"][id - 1]
 
 def getSearches(request, id):
-    searches = {'data': [
-        {"id" : "1", "name": "searched song 1", "artist": "artist1"},
-        {"id" : "2", "name": "searched song 1", "artist": "artist1"},
-        {"id" : "3", "name": "searched song 3", "artist": "artist1"}
-
-    ]}
+    searches = sampleSongs
     return JsonResponse(searches)
 
 
 def getFriends(request, id):
-    searches = {'data': [
-        {"id" : "1", "name": "friend 1", "artist": "artist1"},
-        {"id" : "2", "name": "friend 2", "artist": "artist1"},
-    ]}
+    searches = sampleFriends
     return JsonResponse(searches)
+
+@csrf_exempt #remove the security checks for post request
+def delFriend(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        userID = body["currUser"]
+        friendID = body["friend"]
+
+    return JsonResponse({})
+
+
+@csrf_exempt #remove the security checks for post request
+def addFriend(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        userID = body["currUser"]
+        friendID = body["friend"]
+
+    return JsonResponse({})
