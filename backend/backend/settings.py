@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders'
+    'corsheaders',
+    'viber.apps.ViberConfig'
 ]
 
 MIDDLEWARE = [
@@ -88,8 +89,18 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    },
+    'genredb': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'artist_term.db',
+    },
+    'tracksdb': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'track_metadata.db',
+    },
 }
+
+DATABASE_ROUTERS = ['backend.routers.Routers']
 
 
 # Password validation
