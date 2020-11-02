@@ -73,15 +73,18 @@ def search(request):
         # returnVal = sampleSongs
         if(len(list(song_list)) <= 4):
             returnVal = {"data": [
-                {"track_id" : song_list[0].track_id, "name": song_list[0].title, "artist": song_list[0].artist_name}]}
+                {"track_id" : song_list[0].track_id, "title": song_list[0].title, "artist_name": song_list[0].artist_name}]}
+
         else:
             returnVal = {"data": [
-                    {"track_id" : song_list[0].title, "name": song_list[0].title, "artist": song_list[0].artist_name}, 
-                    {"track_id" : song_list[0].title, "name": song_list[1].title, "artist": song_list[1].artist_name}, 
-                    {"track_id" : song_list[0].title, "name": song_list[2].title, "artist": song_list[2].artist_name}, 
-                    {"track_id" : song_list[0].title, "name": song_list[3].title, "artist": song_list[3].artist_name}]}
+                    {"track_id" : song_list[0].track_id, "title": song_list[0].title, "artist_name": song_list[0].artist_name}, 
+                    {"track_id" : song_list[1].track_id, "title": song_list[1].title, "artist_name": song_list[1].artist_name}, 
+                    {"track_id" : song_list[2].track_id, "title": song_list[2].title, "artist_name": song_list[2].artist_name}, 
+                    {"track_id" : song_list[3].track_id, "title": song_list[3].title, "artist_name": song_list[3].artist_name}]}
 
-            return JsonResponse(returnVal)
+        print(songName)
+        print(returnVal)
+        return JsonResponse(returnVal)
     else:
         return JsonResponse({})
 
@@ -126,7 +129,8 @@ def getSong(request, id):
     #         "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
     #         "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
     #     }
-    song = sampleSongs["data"][id - 1]
+    song = sampleSongs["data"][0]
+    return JsonResponse(song)
 
 def getSearches(request, id):
     searches = sampleSongs
