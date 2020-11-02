@@ -9,10 +9,10 @@ export default function SongComponent(props) {
             dropContent={props.dropContent}
         >
             <Box margin="small" pad="small" background="light-3">
-                <h2>{props.song.name}</h2>
+                <h2>{props.song.title}</h2>
 
                 <Box direction="row">
-                    <Box pad={{ right: "55px" }}>{props.song.artist}</Box>
+                    <Box pad={{ right: "55px" }}>{props.song.artist_name} - {props.song.release}</Box>
                 </Box>
                
             </Box>

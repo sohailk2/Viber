@@ -7,6 +7,52 @@ import json
 
 import random
 
+sampleSongs = {'data': [
+        {
+            "track_id" : "1", "title": "Stronger", "song_id": "1", 
+            "release": "2018", "artist_id": "1", "artist_mbid" : "1", 
+            "artist_name" : "Kanye West", "duration" : "3m", 
+            "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
+            "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
+        },
+        {
+            "track_id" : "2", "title": "One Dance", "song_id": "1", 
+            "release": "2016", "artist_id": "1", "artist_mbid" : "1", 
+            "artist_name" : "Drake", "duration" : "3m", 
+            "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
+            "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
+        },
+        {
+            "track_id" : "3", "title": "Kill Em With Kindess", "song_id": "1", 
+            "release": "2012", "artist_id": "1", "artist_mbid" : "1", 
+            "artist_name" : "Selena Gomez", "duration" : "3m", 
+            "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
+            "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
+        },
+        {
+            "track_id" : "4", "title": "The Hills", "song_id": "1", 
+            "release": "2017", "artist_id": "1", "artist_mbid" : "1", 
+            "artist_name" : "The Weeknd", "duration" : "3m", 
+            "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
+            "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
+        },
+        {
+            "track_id" : "5", "title": "Lemonade", "song_id": "1", 
+            "release": "2020", "artist_id": "1", "artist_mbid" : "1", 
+            "artist_name" : "Gunna", "duration" : "3m", 
+            "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
+            "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
+        }
+
+    ]}
+
+sampleFriends = {'data': [
+        {"id" : "1", "display_name": "sohail"},
+        {"id" : "2", "display_name": "mesa"},
+        {"id" : "3", "display_name": "mihika"},
+        {"id" : "4", "display_name": "charlie"},
+        {"id" : "5", "display_name": "abdu"}
+    ]}
 
 def index(request):
     return HttpResponse("Hello, world. You're at the viber index.")
@@ -19,11 +65,7 @@ def search(request):
         songName = body["songName"]
         # call search function to da
 
-        returnVal = {"data": [
-                {"id" : 1, "name": "song" +  str(random.randint(1,20)), "artist": "artist1"}, 
-                {"id" : 2, "name": "song2" +  str(random.randint(1,20)), "artist": "artist2"}, 
-                {"id" : 3, "name": "song3" +  str(random.randint(1,20)), "artist": "artist3"}, 
-                {"id" : 4, "name": "song4" +  str(random.randint(1,20)), "artist": "artist4"}]}
+        returnVal = sampleSongs
 
         return JsonResponse(returnVal)
     else:
@@ -33,42 +75,41 @@ def getPlaylist(request, id):
 
     errorResponse = {'error': True}
 
-    sampleResponse = {"data": [
-        {"id":1, "name": "song1", "artist": "artist"},
-        {"id":2, "name": "song2", "artist": "artist"}
-    ]}
+    sampleResponse = sampleSongs
     return JsonResponse(sampleResponse)
 
 def getSong(request, id):
-    song = {"id" : id, "name": "song" + str(id), "artist": "artist1"}
+    # song = {
+    #         "track_id" : "1", "title": "Stronger", "song_id": "1", 
+    #         "release": "2018", "artist_id": "1", "artist_mbid" : "1", 
+    #         "artist_name" : "Kanye West", "duration" : "3m", 
+    #         "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
+    #         "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
+    #     }
+    song = sampleSongs["data"][id - 1]
     return JsonResponse(song)
 
 def getSearches(request, id):
-    searches = {'data': [
-        {"id" : "1", "name": "searched song 1", "artist": "artist1"},
-        {"id" : "2", "name": "searched song 1", "artist": "artist1"},
-        {"id" : "3", "name": "searched song 3", "artist": "artist1"},
-        {"id" : "4", "name": "searched song 3", "artist": "artist1"},
-        {"id" : "5", "name": "searched song 3", "artist": "artist1"},
-        {"id" : "6", "name": "searched song 3", "artist": "artist1"},
-        {"id" : "7", "name": "searched song 3", "artist": "artist1"}
-
-    ]}
+    searches = sampleSongs
     return JsonResponse(searches)
 
 
 def getFriends(request, id):
-    searches = {'data': [
-        {"id" : "1", "name": "friend 1", "artist": "artist1"},
-        {"id" : "2", "name": "friend 2", "artist": "artist1"},
-        {"id" : "3", "name": "friend 2", "artist": "artist1"},
-        {"id" : "4", "name": "friend 2", "artist": "artist1"},
-        {"id" : "5", "name": "friend 2", "artist": "artist1"}
-    ]}
+    searches = sampleFriends
     return JsonResponse(searches)
 
 @csrf_exempt #remove the security checks for post request
 def delFriend(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        userID = body["currUser"]
+        friendID = body["friend"]
+
+    return JsonResponse({})
+
+
+@csrf_exempt #remove the security checks for post request
+def addFriend(request):
     if request.method == 'POST':
         body = json.loads(request.body)
         userID = body["currUser"]

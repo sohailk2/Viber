@@ -56,7 +56,7 @@ export default function UserInfo(props) {
                             <div>
                                 <h2>Friends</h2>
                                 <Box margin="small" pad="small" background="light-3">
-                                    <AddFriend />
+                                    <AddFriend userInfo={userInfo} history={history}/>
                                 </Box>
 
                                 <Box overflow="scroll">
@@ -117,7 +117,7 @@ function DisplayFriends(props) {
         return ("LOADING...")
     } else {
         return (
-            friends.map((friend, index) => (<Friend key={friend.id} currUser={props.userInfo} friend={friend} history={props.history}/>))
+            friends.map((friend, index) => (<Friend key={friend.display_name} currUser={props.userInfo} friend={friend} history={props.history}/>))
         )
     }
 }
@@ -127,7 +127,7 @@ function Friend(props) {
     const [confirmDelete, setConfirmDelete] = useState(false);
 
     let deleteFriend = () => {
-        axios.post(`http://127.0.0.1:8000/viber/delFriend/`, {currUser: props.currUser.display_name, friend: props.friend.id})
+        axios.post(`http://127.0.0.1:8000/viber/delFriend/`, {currUser: props.currUser.display_name, friend: props.friend.display_name})
         .then(res => {
             props.history.push({ pathname: "/empty" });
             props.history.replace({ pathname: "/userinfo" });
@@ -137,7 +137,7 @@ function Friend(props) {
 
     return (
         <Box margin="small" pad="small" background="light-3">
-            <h3>{props.friend.name}</h3>
+            <h3>{props.friend.display_name}</h3>
             
             {confirmDelete ? 
                 <span>Confirm Delete<Button hoverIndicator={true} color="status-error" label="Yes" onClick={() => {deleteFriend()}}/></span>
@@ -150,15 +150,43 @@ function Friend(props) {
     )
 }
 
-function AddFriend() {
+function AddFriend(props) {
 
     const [value, setValue] = React.useState({});
+    const [errors, setErrors] = React.useState({});
+
+
+    let addFriendCall = () => {
+        
+        if (validate()) {
+            axios.post(`http://127.0.0.1:8000/viber/addFriend/`, {currUser: props.userInfo.display_name, friend: value.username})
+            .then(res => {
+                props.history.push({ pathname: "/empty" });
+                props.history.replace({ pathname: "/userinfo" });
+            }) 
+        }
+        
+    }
+
+    let validate = () => {
+
+        if(!value.hasOwnProperty('username') || value.username.trim() == ""){
+            setErrors({"username": "Enter a name"});
+            return false;
+        }
+
+        return true;
+        
+    }
+
     return (
         <Form
             value={value}
             onChange={nextValue => setValue(nextValue)}
             onReset={() => setValue({})}
-            onSubmit={({ value }) => { }}
+            onSubmit={addFriendCall}
+            errors={errors}
+            // onValidate={validate}
         >
             <FormField name="username" htmlfor="text-input-id" label="Username">
                 <TextInput id="text-input-id" name="username" />

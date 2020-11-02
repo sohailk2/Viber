@@ -53,21 +53,29 @@ class Results extends React.Component {
                 return ("NO RESULTS")
             } else {
                 return (
-                    <div>
-                        <Main pad="large">
-                            <Heading>Results for:</Heading>
-                            <SongComponent key={this.state.currSong.id} song={this.state.currSong} onClick={() => alert()} />
-                        </Main>
+                    <Box direction="row">
+                        <Box>
+                            <Main pad="large">
+                                <span>
+                                    <Heading>
+                                        Results for: 
+                                    </Heading>
+                                </span>
+                                <SongComponent key={this.state.currSong.id} song={this.state.currSong} onClick={() => {}} />
+
+
+                            </Main>
+                        </Box>
                         <Box
                             overflow="scroll"
                             direction="column"
                             border={{ color: 'brand', size: 'large' }}
                             pad="small"
-                            style={{ width: "500px", /**height: '500px'**/ }}
+                            style={{ width: "500px", height: '500px' }}
                         >
                             {this.state.playlist.map((song, index) => (<SongComponent key={song.id} song={song} dropContent={<SimilarityMetric/>} onClick={() => { }} />))}
                         </Box>
-                    </div>
+                    </Box>
                 )
             }
         }
