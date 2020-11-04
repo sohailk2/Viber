@@ -163,3 +163,7 @@ yarn-error.log*
 
 .env
 .ENV
+
+#databases
+artist_term.db
+track_metadata.db

@@ -42,7 +42,7 @@ class Search extends React.Component {
         axios.post(`http://127.0.0.1:8000/viber/search/`, query,
         )
         .then(res => {
-            // console.log("DATA", res.data.data);
+            console.log("DATA", res.data.data);
             this.setState({playlist : res.data.data})
         });
     }
