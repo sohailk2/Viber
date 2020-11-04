@@ -68,20 +68,24 @@ def search(request):
         
         # songName = "Silent Night"
         #QUERY the database for the song and picks the ones with the most familiar artists
-        song_list = Songs.objects.raw('SELECT track_id, title FROM songs WHERE title = %s ORDER BY artist_familiarity DESC', [songName])
+        song_list = Songs.objects.raw('SELECT track_id, title FROM songs WHERE title LIKE \'%{name}%\' ORDER BY artist_familiarity DESC  LIMIT 100'.format(name = songName))
 
         # returnVal = sampleSongs
-        if(len(list(song_list)) <= 4):
+        if(len(list(song_list)) == 0):
+            returnVal = {"data": []}
+        elif(len(list(song_list)) <= 4):
             returnVal = {"data": [
-                {"track_id" : song_list[0].track_id, "name": song_list[0].title, "artist": song_list[0].artist_name}]}
-        else:
-            returnVal = {"data": [
-                    {"track_id" : song_list[0].title, "name": song_list[0].title, "artist": song_list[0].artist_name}, 
-                    {"track_id" : song_list[0].title, "name": song_list[1].title, "artist": song_list[1].artist_name}, 
-                    {"track_id" : song_list[0].title, "name": song_list[2].title, "artist": song_list[2].artist_name}, 
-                    {"track_id" : song_list[0].title, "name": song_list[3].title, "artist": song_list[3].artist_name}]}
+                {"track_id" : song_list[0].track_id, "title": song_list[0].title, "artist_name": song_list[0].artist_name}]}
 
-            return JsonResponse(returnVal)
+        else:
+            outputArr = []
+            for song in song_list:
+                outputArr.append({"track_id" : song.track_id, "title": song.title, "artist_name": song.artist_name})
+            returnVal = {"data": outputArr}
+
+        print(songName)
+        print(returnVal)
+        return JsonResponse(returnVal)
     else:
         return JsonResponse({})
 
@@ -126,7 +130,8 @@ def getSong(request, id):
     #         "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
     #         "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
     #     }
-    song = sampleSongs["data"][id - 1]
+    song = sampleSongs["data"][0]
+    return JsonResponse(song)
 
 def getSearches(request, id):
     searches = sampleSongs
