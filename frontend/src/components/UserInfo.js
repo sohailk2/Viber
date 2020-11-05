@@ -4,8 +4,8 @@ import { Text, Grid, Box, Button, Anchor, Form, FormField, TextInput } from 'gro
 import { useHistory } from "react-router-dom";
 import Modal from 'react-modal';
 
-
 import SongComponent from './SongComponent';
+import EditableText from './EditableText'
 
 export default function UserInfo(props) {
 
@@ -16,7 +16,7 @@ export default function UserInfo(props) {
 
 
     let customStyles = {
-        overlay : {backgroundColor: 'rgba(255, 255, 255, .90)'},
+        overlay: { backgroundColor: 'rgba(255, 255, 255, .90)' },
         content: {
             top: '50%',
             left: '50%',
@@ -71,10 +71,10 @@ export default function UserInfo(props) {
 
                 <div>
                     <h1>
-                        Hello: 
-                        {/* <Anchor target="_blank" href={userInfo.external_urls.spotify}><Text size="xlarge" color="brand">{userInfo.display_name}</Text></Anchor> */}
-                        <Button onClick={openModal} margin="small" hoverIndicator={true} primary={true} label={userInfo.display_name}/>
+                        Hello:
+                        <Anchor target="_blank" href={userInfo.external_urls.spotify}><Text size="xlarge" color="brand">{userInfo.display_name}</Text></Anchor>
                     </h1>
+                    <Button onClick={openModal} hoverIndicator={true} primary={true} label="More Info" />
                     {/* {JSON.stringify(userInfo)} */}
 
                     {/* <button onClick={openModal}>Open Modal</button> */}
@@ -85,7 +85,7 @@ export default function UserInfo(props) {
                         style={customStyles}
                         contentLabel="Example Modal"
                     >
-                        <EditUser userInfo={userInfo}/>
+                        <EditUser userInfo={userInfo} />
                     </Modal>
 
                     <Box
@@ -126,20 +126,55 @@ export default function UserInfo(props) {
 }
 
 function EditUser(props) {
-    return(
+    return (
 
-        <Box  pad="medium" border={{ color: 'brand', size: 'large' }} style={{width: '100%', height: '100%'}}>
+        <Box pad="medium" border={{ color: 'brand', size: 'large' }} style={{ width: '100%', height: '100%' }}>
 
             <Text size="large" >Spotify ID: <Text size="medium" color="brand">{props.userInfo.display_name}</Text></Text>
-            
-            <Text size="large" >My Favorite Song: <Text size="medium" color="brand">{props.userInfo.display_name}</Text></Text>
 
-            <Text size="large" >Followers Favorite Songs: <Text size="medium" color="brand">{props.userInfo.display_name}</Text></Text>
+            <Text size="large" >Followers Favorite Songs: <Text size="medium" color="brand">[]</Text></Text>
 
-            <Text size="large" >Most Searched Genres: <Text size="medium" color="brand">{props.userInfo.display_name}</Text></Text>
+            <Text size="large" >Most Searched Genres: <Text size="medium" color="brand">Pop</Text></Text>
+
+            <FavoriteSong userInfo={props.userInfo}/>
+
         </Box>
 
     )
+}
+
+function FavoriteSong(props) {
+    const [favSong, setFavSong] = React.useState(null);
+
+    useEffect(() => {
+
+        axios.get(`http://127.0.0.1:8000/viber/getFavSong/${props.userInfo.display_name}/`)
+            .then(res => {
+                setFavSong(res.data.song);
+            })
+    }, [favSong]);
+
+    let updateFavSong = (newSong) => {
+
+    };
+
+    return (
+        <Box>
+            <h3>My Favorite Song: (Click on text below to edit)</h3>
+            {/* <TextInput
+                placeholder="type here"
+                value={value}
+                onChange={event => setValue(event.target.value)}
+
+            /> */}
+            {favSong ? 
+                <EditableText value={favSong} callback = {updateFavSong} editClassName="form-control"/>
+                :
+                'Loading...'
+            }
+
+        </Box>
+    );
 }
 
 function PreviousSearches(props) {
