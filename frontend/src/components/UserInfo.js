@@ -48,7 +48,7 @@ export default function UserInfo(props) {
                         <Box style={{ height: '500px', width: '80%' }} overflow="scroll" margin="large" pad="medium" background="dark-3">
                             <div>
                                 <h2>Previous Searches</h2>
-                                <PreviousSearches userInfo={userInfo} />
+                                <PreviousSearches userInfo={userInfo} history={history}/>
                             </div>
                         </Box>
 
@@ -89,13 +89,17 @@ function PreviousSearches(props) {
             })
     }, []);
 
+    let viewPlaylist = (songID) => {
+        props.history.push({ pathname: `/playlist/${songID}` });
+    }
+    
     if (searches == null) {
         return ("LOADING...")
     } else {
         return (
 
             <Box>
-                {searches.map((song, index) => (<SongComponent key={song.id} song={song} onClick={() => { }} />))}
+                {searches.map((song, index) => (<SongComponent key={song.track_id} song={song} onClick={() => viewPlaylist(song.track_id)}/>))}
             </Box>
         )
     }
