@@ -19,7 +19,7 @@ class Routers(object):
         """
         Do not allow migrations on the remote database
         """
-        if app_label == 'genre' or app_label == 'tracks':
+        if app_label == 'genre' or app_label == 'tracks' or app_label == 'default':
             return True
         return True
 

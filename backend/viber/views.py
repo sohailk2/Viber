@@ -2,50 +2,51 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from viber.models import Songs, ArtistTerm
+from viber.models import Songs, ArtistTerm, PrevSearches
 import json
+from django.db import connections
 
 
 import random
 
-sampleSongs = {'data': [
-        {
-            "track_id" : "1", "title": "Stronger", "song_id": "1", 
-            "release": "2018", "artist_id": "1", "artist_mbid" : "1", 
-            "artist_name" : "Kanye West", "duration" : "3m", 
-            "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
-            "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
-        },
-        {
-            "track_id" : "2", "title": "One Dance", "song_id": "1", 
-            "release": "2016", "artist_id": "1", "artist_mbid" : "1", 
-            "artist_name" : "Drake", "duration" : "3m", 
-            "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
-            "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
-        },
-        {
-            "track_id" : "3", "title": "Kill Em With Kindess", "song_id": "1", 
-            "release": "2012", "artist_id": "1", "artist_mbid" : "1", 
-            "artist_name" : "Selena Gomez", "duration" : "3m", 
-            "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
-            "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
-        },
-        {
-            "track_id" : "4", "title": "The Hills", "song_id": "1", 
-            "release": "2017", "artist_id": "1", "artist_mbid" : "1", 
-            "artist_name" : "The Weeknd", "duration" : "3m", 
-            "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
-            "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
-        },
-        {
-            "track_id" : "5", "title": "Lemonade", "song_id": "1", 
-            "release": "2020", "artist_id": "1", "artist_mbid" : "1", 
-            "artist_name" : "Gunna", "duration" : "3m", 
-            "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
-            "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
-        }
+# sampleSongs = {'data': [
+#         {
+#             "track_id" : "1", "title": "Stronger", "song_id": "1", 
+#             "release": "2018", "artist_id": "1", "artist_mbid" : "1", 
+#             "artist_name" : "Kanye West", "duration" : "3m", 
+#             "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
+#             "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
+#         },
+#         {
+#             "track_id" : "2", "title": "One Dance", "song_id": "1", 
+#             "release": "2016", "artist_id": "1", "artist_mbid" : "1", 
+#             "artist_name" : "Drake", "duration" : "3m", 
+#             "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
+#             "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
+#         },
+#         {
+#             "track_id" : "3", "title": "Kill Em With Kindess", "song_id": "1", 
+#             "release": "2012", "artist_id": "1", "artist_mbid" : "1", 
+#             "artist_name" : "Selena Gomez", "duration" : "3m", 
+#             "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
+#             "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
+#         },
+#         {
+#             "track_id" : "4", "title": "The Hills", "song_id": "1", 
+#             "release": "2017", "artist_id": "1", "artist_mbid" : "1", 
+#             "artist_name" : "The Weeknd", "duration" : "3m", 
+#             "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
+#             "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
+#         },
+#         {
+#             "track_id" : "5", "title": "Lemonade", "song_id": "1", 
+#             "release": "2020", "artist_id": "1", "artist_mbid" : "1", 
+#             "artist_name" : "Gunna", "duration" : "3m", 
+#             "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
+#             "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
+#         }
 
-    ]}
+#     ]}
 
 sampleFriends = {'data': [
         {"id" : "1", "display_name": "sohail"},
@@ -64,36 +65,34 @@ def search(request):
         print("request ->", request.body)
         body = json.loads(request.body)
         songName = body["songName"]
-        # call search function to da
-        
-        # songName = "Silent Night"
+    
         #QUERY the database for the song and picks the ones with the most familiar artists
-        song_list = Songs.objects.raw('SELECT track_id, title FROM songs WHERE title LIKE \'%{name}%\' ORDER BY artist_familiarity DESC  LIMIT 100'.format(name = songName))
+        song_list = Songs.objects.raw('SELECT track_id, title FROM songs WHERE title LIKE \'%{name}%\' ORDER BY artist_familiarity DESC LIMIT 100'.format(name = songName))
 
-        # returnVal = sampleSongs
         if(len(list(song_list)) == 0):
             returnVal = {"data": []}
-        elif(len(list(song_list)) <= 4):
-            returnVal = {"data": [
-                {"track_id" : song_list[0].track_id, "title": song_list[0].title, "artist_name": song_list[0].artist_name}]}
-
         else:
             outputArr = []
             for song in song_list:
                 outputArr.append({"track_id" : song.track_id, "title": song.title, "artist_name": song.artist_name})
             returnVal = {"data": outputArr}
 
-        print(songName)
-        print(returnVal)
         return JsonResponse(returnVal)
     else:
         return JsonResponse({})
 
 def getPlaylist(request, id):
 
-    #will be replaced with clicked item
-    songName = "Silent Night"
-    artistName = "Mariah Carey"
+    track_id = id
+    spotifyUID = "uid"
+    cursor = connections['default'].cursor()
+    cursor.execute('INSERT INTO prev_search (track_id, spotifyUID) VALUES ("' + track_id + '", "' + spotifyUID + '")')
+
+
+    rawQueryForSongName = 'SELECT track_id, title FROM songs WHERE track_id = "' + track_id + '"'
+    songName = (Songs.objects.raw(rawQueryForSongName))[0].title
+    rawQueryForArtistName = 'SELECT track_id, artist_name FROM songs WHERE track_id = "' + track_id + '"'
+    artistName = (Songs.objects.raw(rawQueryForArtistName))[0].artist_name
 
     #find artist_id for given track
     queryVal = 'SELECT track_id, artist_id FROM songs WHERE title = "' + songName + '" AND artist_name = "' + artistName + '"'
@@ -110,32 +109,44 @@ def getPlaylist(request, id):
     common = query3[0].artist_id
 
     #SET OPERATION: union of familiar artists and ones with similar genre
-    query4Val = 'SELECT track_id, title, artist_name FROM songs WHERE artist_familiarity >= 1.0 UNION SELECT track_id, title, artist_name FROM songs WHERE artist_id = "' + str(common) + '"'
+    # query4Val = 'SELECT track_id, title, artist_name FROM songs WHERE artist_familiarity >= 1.0'
+    query4Val = 'SELECT track_id, title, artist_name FROM songs WHERE artist_id = "' + str(common) + '"'
+    # UNION SELECT track_id, title, artist_name FROM songs WHERE artist_id = "' + str(common) + '"'
     query4 = Songs.objects.raw(query4Val)
-
-    #sampleResponse = sampleSongs
-    #return JsonResponse(sampleResponse)
   
     sampleResponse = {"data": [
-        {"id":1, "name": query4[0].title, "artist": query4[0].artist_name},
-        {"id":2, "name": query4[1].title, "artist": query4[1].artist_name}
+        {"track_id":1, "title": query4[0].title, "artist_name": query4[0].artist_name},
+        {"track_id":2, "title": query4[1].title, "artist_name": query4[1].artist_name}
     ]}
     return JsonResponse(sampleResponse)
 
 def getSong(request, id):
-    # song = {
-    #         "track_id" : "1", "title": "Stronger", "song_id": "1", 
-    #         "release": "2018", "artist_id": "1", "artist_mbid" : "1", 
-    #         "artist_name" : "Kanye West", "duration" : "3m", 
-    #         "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
-    #         "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
-    #     }
-    song = sampleSongs["data"][0]
-    return JsonResponse(song)
+    track_id = id
+    rawQueryForSongName = 'SELECT track_id, title FROM songs WHERE track_id = "' + track_id + '"'
+    songName = (Songs.objects.raw(rawQueryForSongName))[0].title
+    rawQueryForArtistName = 'SELECT track_id, artist_name FROM songs WHERE track_id = "' + track_id + '"'
+    artistName = (Songs.objects.raw(rawQueryForArtistName))[0].artist_name
+
+    sampleResponse = {"track_id":track_id, "title": songName, "artist_name": artistName}
+
+    return JsonResponse(sampleResponse)
 
 def getSearches(request, id):
-    searches = sampleSongs
-    return JsonResponse(searches)
+
+    UID = "uid"
+
+    song_list = PrevSearches.objects.raw('SELECT id, track_id FROM prev_search WHERE spotifyUID = "' + UID + '"')
+
+    if(len(list(song_list)) == 0):
+        returnVal = {"data": []}
+    else:
+        outputArr = []
+        for song in song_list:
+            songInfo = (Songs.objects.raw('SELECT track_id, title FROM songs WHERE track_id = "' + song.track_id + '"'))[0]
+            outputArr.append({"track_id" : song.track_id, "title": songInfo.title, "artist_name": songInfo.artist_name})
+        returnVal = {"data": outputArr}
+
+    return JsonResponse(returnVal)
 
 
 def getFriends(request, id):

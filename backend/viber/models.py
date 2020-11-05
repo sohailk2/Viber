@@ -70,3 +70,9 @@ class Terms(models.Model):
         db_table = 'terms'
         app_label = 'genre'
 
+class PrevSearches(models.Model):
+    track_id = models.TextField(blank=True, null=True)
+    spotifyUID = models.TextField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'prev_search'
