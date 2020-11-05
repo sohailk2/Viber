@@ -28,15 +28,20 @@ class App extends React.Component {
 
     this.state = {
       token: null,
-      redirect: null
+      redirect: null,
+      userInfo: null
       // token: "BQCb9BsaeFRV9oyCLAtROzMWebIgLvA5pOcHblqShF6gaVLPEXWvjkoF0H-IXb1KXczz10MgcptLYiHnfrkymDw9xOc_ACB3jvZi24cK0zxIGmVIRGdImH__Tv0owrGOk3h_l2l9kf6PpqBStTS9ic3SIdNL-Js8"
     };
 
   }
 
-  updateUser = (user_token) => {
+  updateUserToken = (user_token) => {
     this.setState({ token: user_token });
   }
+
+  updateUserInfo = (userInfo) => {
+    this.setState({ userInfo: userInfo });
+  };
 
   render() {
 
@@ -77,17 +82,17 @@ class App extends React.Component {
               <Switch>
 
                 <Route path="/callback">
-                  <Login updateUser={this.updateUser} />
+                  <Login updateUserToken={this.updateUserToken} />
                 </Route>
 
                 {this.state.token == null ?
-                  <Home/> :
+                  <Home /> :
                   <>
                     <Route path="/userinfo">
 
 
                       {/* <UserInfo token={this.state.tempToken} /> */}
-                      <UserInfo token={this.state.token} />
+                      <UserInfo updateUserInfo={this.updateUserInfo} token={this.state.token} userInfo={this.state.userInfo} />
 
                       {/* <Link to="/search">
                       <Button primary label="Search" />
@@ -97,10 +102,14 @@ class App extends React.Component {
                     </Route>
 
                     <Route path="/search">
-                      <Search/>
+                      <Search userInfo={this.state.userInfo} />
                     </Route>
 
-                    <Route path="/playlist/:id" component={Results} />
+
+                    <Route path="/playlist/:songID"
+                      // children={<Results songID = {params.match.songID} userInfo = {this.state.userInfo}/>}   
+                      render={(props) => <Results userInfo = {this.state.userInfo} {...props} /> }
+                    />
                   </>
                 }
               </Switch>

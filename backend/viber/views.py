@@ -67,7 +67,7 @@ def search(request):
         songName = body["songName"]
     
         #QUERY the database for the song and picks the ones with the most familiar artists
-        song_list = Songs.objects.raw('SELECT track_id, title FROM songs WHERE title LIKE \'%{name}%\' ORDER BY artist_familiarity DESC LIMIT 100'.format(name = songName))
+        song_list = Songs.objects.raw('SELECT track_id, title FROM songs WHERE title LIKE \'%{name}%\' ORDER BY artist_familiarity DESC LIMIT 20'.format(name = songName))
 
         if(len(list(song_list)) == 0):
             returnVal = {"data": []}
@@ -81,44 +81,48 @@ def search(request):
     else:
         return JsonResponse({})
 
-def getPlaylist(request, id):
+@csrf_exempt #remove the security checks for post request
+def getPlaylist(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        track_id = body["track_id"]
+        spotifyUID = body["UID"]
+        cursor = connections['default'].cursor()
+        cursor.execute('INSERT INTO prev_search (track_id, spotifyUID) VALUES ("' + track_id + '", "' + spotifyUID + '")')
 
-    track_id = id
-    spotifyUID = "uid"
-    cursor = connections['default'].cursor()
-    cursor.execute('INSERT INTO prev_search (track_id, spotifyUID) VALUES ("' + track_id + '", "' + spotifyUID + '")')
 
+        rawQueryForSongName = 'SELECT track_id, title FROM songs WHERE track_id = "' + track_id + '"'
+        songName = (Songs.objects.raw(rawQueryForSongName))[0].title
+        rawQueryForArtistName = 'SELECT track_id, artist_name FROM songs WHERE track_id = "' + track_id + '"'
+        artistName = (Songs.objects.raw(rawQueryForArtistName))[0].artist_name
 
-    rawQueryForSongName = 'SELECT track_id, title FROM songs WHERE track_id = "' + track_id + '"'
-    songName = (Songs.objects.raw(rawQueryForSongName))[0].title
-    rawQueryForArtistName = 'SELECT track_id, artist_name FROM songs WHERE track_id = "' + track_id + '"'
-    artistName = (Songs.objects.raw(rawQueryForArtistName))[0].artist_name
+        #find artist_id for given track
+        queryVal = 'SELECT track_id, artist_id FROM songs WHERE title = "' + songName + '" AND artist_name = "' + artistName + '"'
+        query = Songs.objects.raw(queryVal)
+        artistID = query[0].artist_id
 
-    #find artist_id for given track
-    queryVal = 'SELECT track_id, artist_id FROM songs WHERE title = "' + songName + '" AND artist_name = "' + artistName + '"'
-    query = Songs.objects.raw(queryVal)
-    artistID = query[0].artist_id
+        #find genre (term) given artist_id
+        query2 = ArtistTerm.objects.raw('SELECT artist_id, term FROM artist_term WHERE artist_id = %s', [artistID])
+        term = query2[0].term
 
-    #find genre (term) given artist_id
-    query2 = ArtistTerm.objects.raw('SELECT artist_id, term FROM artist_term WHERE artist_id = %s', [artistID])
-    term = query2[0].term
+        #find other artist_ids with same term
+        query3Val = 'SELECT artist_id, term FROM artist_term WHERE term = "' + term + '"'
+        query3 = ArtistTerm.objects.raw(query3Val)
+        common = query3[0].artist_id
 
-    #find other artist_ids with same term
-    query3Val = 'SELECT artist_id, term FROM artist_term WHERE term = "' + term + '"'
-    query3 = ArtistTerm.objects.raw(query3Val)
-    common = query3[0].artist_id
-
-    #SET OPERATION: union of familiar artists and ones with similar genre
-    # query4Val = 'SELECT track_id, title, artist_name FROM songs WHERE artist_familiarity >= 1.0'
-    query4Val = 'SELECT track_id, title, artist_name FROM songs WHERE artist_id = "' + str(common) + '"'
-    # UNION SELECT track_id, title, artist_name FROM songs WHERE artist_id = "' + str(common) + '"'
-    query4 = Songs.objects.raw(query4Val)
-  
-    sampleResponse = {"data": [
-        {"track_id":1, "title": query4[0].title, "artist_name": query4[0].artist_name},
-        {"track_id":2, "title": query4[1].title, "artist_name": query4[1].artist_name}
-    ]}
-    return JsonResponse(sampleResponse)
+        #SET OPERATION: union of familiar artists and ones with similar genre
+        # query4Val = 'SELECT track_id, title, artist_name FROM songs WHERE artist_familiarity >= 1.0'
+        query4Val = 'SELECT track_id, title, artist_name FROM songs WHERE artist_id = "' + str(common) + '"'
+        # UNION SELECT track_id, title, artist_name FROM songs WHERE artist_id = "' + str(common) + '"'
+        query4 = Songs.objects.raw(query4Val)
+    
+        sampleResponse = {"data": [
+            {"track_id":1, "title": query4[0].title, "artist_name": query4[0].artist_name},
+            {"track_id":2, "title": query4[1].title, "artist_name": query4[1].artist_name}
+        ]}
+        return JsonResponse(sampleResponse)
+    else:
+        return "INVALID"
 
 def getSong(request, id):
     track_id = id
@@ -133,7 +137,7 @@ def getSong(request, id):
 
 def getSearches(request, id):
 
-    UID = "uid"
+    UID = id
 
     song_list = PrevSearches.objects.raw('SELECT id, track_id FROM prev_search WHERE spotifyUID = "' + UID + '"')
 

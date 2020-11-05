@@ -16,7 +16,7 @@ function Login(props) {
 
         if (access_token) {
             //redirect to next screen
-            props.updateUser(access_token);
+            props.updateUserToken(access_token);
             setRedirect("/userinfo");
         } else {
             setHeading("Failed to Login");

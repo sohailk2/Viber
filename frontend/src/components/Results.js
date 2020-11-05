@@ -18,7 +18,9 @@ class Results extends React.Component {
     }
 
     componentDidMount() {
-        const songID = this.props.match.params.id;
+        // TRKTVOR128F4217228
+        const songID = this.props.match.params.songID;
+
         //get the playlist
         this.getData(songID);
 
@@ -28,8 +30,12 @@ class Results extends React.Component {
     }
 
     getData = (songID) => {
+        // console.log(this.props.userInfo.display_name);
         // var csrftoken = Cookies.get('csrftoken');
-        axios.get(`http://127.0.0.1:8000/viber/getPlaylist/${songID}/`)
+        axios.post(`http://127.0.0.1:8000/viber/getPlaylist/`, {
+            "track_id" : songID,
+            "UID" : this.props.userInfo.display_name
+        })
             .then(res => {
                 console.log("DATA", res.data.data);
                 this.setState({ playlist: res.data.data, error: res.data.error })

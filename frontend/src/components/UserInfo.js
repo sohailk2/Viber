@@ -10,7 +10,7 @@ export default function UserInfo(props) {
 
     let history = useHistory();
     const [page, setPage] = useState(1);
-    const [userInfo, setUserInfo] = useState(null);
+    // const [props.userInfo, setUserInfo] = useState(null);
     // history.push('/someRoute')
 
 
@@ -27,17 +27,17 @@ export default function UserInfo(props) {
             .then(res => {
                 console.log(res);
                 console.log(res.data);
-                setUserInfo(res.data);
-
+                // setUserInfo(res.data);
+                props.updateUserInfo(res.data);
             })
     }, [page]);
 
     return (
         <div style={{ width: '100%' }}>
-            {userInfo ?
+            {props.userInfo ?
 
                 <div>
-                    <h1>Hello <Anchor target="_blank" href={userInfo.external_urls.spotify}><Text size="xlarge" color="brand">{userInfo.display_name}</Text></Anchor></h1>
+                    <h1>Hello <Anchor target="_blank" href={props.userInfo.external_urls.spotify}><Text size="xlarge" color="brand">{props.userInfo.display_name}</Text></Anchor></h1>
                     {/* {JSON.stringify(userInfo)} */}
 
                     <Box
@@ -48,7 +48,7 @@ export default function UserInfo(props) {
                         <Box style={{ height: '500px', width: '80%' }} overflow="scroll" margin="large" pad="medium" background="dark-3">
                             <div>
                                 <h2>Previous Searches</h2>
-                                <PreviousSearches userInfo={userInfo} history={history}/>
+                                <PreviousSearches userInfo={props.userInfo} history={history}/>
                             </div>
                         </Box>
 
@@ -56,11 +56,11 @@ export default function UserInfo(props) {
                             <div>
                                 <h2>Friends</h2>
                                 <Box margin="small" pad="small" background="light-3">
-                                    <AddFriend userInfo={userInfo} history={history}/>
+                                    <AddFriend userInfo={props.userInfo} history={history}/>
                                 </Box>
 
                                 <Box overflow="scroll">
-                                    <DisplayFriends userInfo={userInfo} history={history}/>
+                                    <DisplayFriends userInfo={props.userInfo} history={history}/>
                                 </Box>
                             </div>
                         </Box>
