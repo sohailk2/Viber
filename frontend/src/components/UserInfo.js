@@ -309,7 +309,7 @@ function AddFriend(props) {
                 <TextInput id="text-input-id" name="username" />
             </FormField>
 
-            <Button type="submit" color="status-ok" label="Add Friend" />
+            <Button type="submit" color="status-ok" label="Add Follower" />
         </Form>
     );
 }
