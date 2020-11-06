@@ -2,51 +2,11 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from viber.models import Songs, ArtistTerm, PrevSearches, Friends
+from viber.models import Songs, ArtistTerm, PrevSearches, Following, Person
 import json
 from django.db import connections
 
-
 import random
-
-# sampleSongs = {'data': [
-#         {
-#             "track_id" : "1", "title": "Stronger", "song_id": "1", 
-#             "release": "2018", "artist_id": "1", "artist_mbid" : "1", 
-#             "artist_name" : "Kanye West", "duration" : "3m", 
-#             "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
-#             "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
-#         },
-#         {
-#             "track_id" : "2", "title": "One Dance", "song_id": "1", 
-#             "release": "2016", "artist_id": "1", "artist_mbid" : "1", 
-#             "artist_name" : "Drake", "duration" : "3m", 
-#             "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
-#             "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
-#         },
-#         {
-#             "track_id" : "3", "title": "Kill Em With Kindess", "song_id": "1", 
-#             "release": "2012", "artist_id": "1", "artist_mbid" : "1", 
-#             "artist_name" : "Selena Gomez", "duration" : "3m", 
-#             "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
-#             "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
-#         },
-#         {
-#             "track_id" : "4", "title": "The Hills", "song_id": "1", 
-#             "release": "2017", "artist_id": "1", "artist_mbid" : "1", 
-#             "artist_name" : "The Weeknd", "duration" : "3m", 
-#             "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
-#             "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
-#         },
-#         {
-#             "track_id" : "5", "title": "Lemonade", "song_id": "1", 
-#             "release": "2020", "artist_id": "1", "artist_mbid" : "1", 
-#             "artist_name" : "Gunna", "duration" : "3m", 
-#             "artist_familiarity" : "IDK", "artist_hotttnesss": "5", "year" : "2018",
-#             "track_7digitalid": "1", "shs_perf" : "1", "shs_work" : "1"
-#         }
-
-#     ]}
 
 sampleFriends = {'data': [
         {"id" : "1", "display_name": "sohail"},
@@ -154,11 +114,11 @@ def getSearches(request, id):
 
 
 def getFriends(request, id):
-    friendsList = Friends.objects.raw('SELECT id, friendTo FROM friend WHERE friendFrom = "' + id + '"')
+    friendsList = Following.objects.raw('SELECT id, followingUID FROM following WHERE currentUser = "' + id + '"')
     outputArr = []
     for friend in friendsList:
 
-        outputArr.append({"id" : friend.id, "display_name": friend.friendTo})
+        outputArr.append({"id" : friend.id, "display_name": friend.followingUID})
     returnVal = {"data": outputArr}
     return JsonResponse(returnVal)
 
@@ -170,7 +130,7 @@ def delFriend(request):
         friendID = body["friend"]
 
         cursor = connections['default'].cursor()
-        cursor.execute('DELETE FROM friend WHERE friendFrom = "' + userID + '" AND friendTo = "' + friendID + '"')
+        cursor.execute('DELETE FROM following WHERE currentUser = "' + userID + '" AND followingUID = "' + friendID + '"')
 
     return JsonResponse({})
 
@@ -182,18 +142,22 @@ def addFriend(request):
         userID = body["currUser"]
         friendID = body["friend"]
         cursor = connections['default'].cursor()
-        cursor.execute('INSERT INTO friend (friendFrom, friendTo) VALUES ("' + userID + '", "' + friendID + '")')
+        cursor.execute('INSERT INTO following (currentUser, followingUID) VALUES ("' + userID + '", "' + friendID + '")')
     return JsonResponse({})
 
 def getFavSong(request, id):
-    return JsonResponse({"song" : "Like Woah - Logic"})
+    favSong = Person.objects.raw('SELECT id, favoriteSong FROM person WHERE spotifyUID = "' + id + '"')[0]
+    return JsonResponse({"song" : favSong.favoriteSong})
 
 @csrf_exempt #remove the security checks for post request
 def setFavSong(request):
     if request.method == 'POST':
         body = json.loads(request.body)
         userID = body["UID"]
-        newSong = body["song"]
+        favSong = body["song"]
+
+        cursor = connections['default'].cursor()
+        cursor.execute('UPDATE person SET favoriteSong = "' + favSong + '" WHERE spotifyUID = "' + userID + '"')
     
     return JsonResponse({"success" : "true"})
 
@@ -204,5 +168,7 @@ def loginUser(request):
         body = json.loads(request.body)
         userID = body["UID"]
 
+        cursor = connections['default'].cursor()
+        cursor.execute('INSERT INTO person (spotifyUID, favoriteSong) VALUES ("' + userID + '", "Click to add favorite song")')
 
     return JsonResponse({"success" : "true"})
