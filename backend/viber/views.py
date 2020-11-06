@@ -196,3 +196,13 @@ def setFavSong(request):
         newSong = body["song"]
     
     return JsonResponse({"success" : "true"})
+
+# just make a new user if not a new user
+@csrf_exempt
+def loginUser(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        userID = body["UID"]
+
+
+    return JsonResponse({"success" : "true"})

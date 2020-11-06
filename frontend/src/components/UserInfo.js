@@ -32,6 +32,15 @@ export default function UserInfo(props) {
         }
     };
 
+    let loginUser = (display_name) => {
+        axios.post(`http://127.0.0.1:8000/viber/loginUser/`, {"UID" : display_name},
+            )
+            .then(res => {
+                
+            });
+        
+    };
+
     // const token = "BQAD4pJHqlvDpcne93XTG7S1rr09ik0H7unN8aH7bTBdpr-berpK_om4qW1JhLTullh-miTq8zrruznHFW4dviMyHyg79wig4ImJs0Vbxi-rOxsj-POxSZ_A_rTz6_AXf_e92dcP95n8o5ExBpNGaqGl5cGWrx6l"
     const token = props.token;
 
@@ -47,6 +56,7 @@ export default function UserInfo(props) {
                 console.log(res.data);
                 // setUserInfo(res.data);
                 props.updateUserInfo(res.data);
+                loginUser(res.data.display_name);
             })
     }, [page]);
 
@@ -100,7 +110,7 @@ export default function UserInfo(props) {
 
                         <Box overflow="scroll" style={{ height: '500px', width: '80%' }} margin="large" pad="medium" background="dark-3">
                             <div>
-                                <h2>Friends</h2>
+                                <h2>Following:</h2>
                                 <Box margin="small" pad="small" background="light-3">
                                     <AddFriend userInfo={props.userInfo} history={history}/>
                                 </Box>
