@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from viber.models import Songs, ArtistTerm, PrevSearches
+from viber.models import Songs, ArtistTerm, PrevSearches, Friends
 import json
 from django.db import connections
 
@@ -154,8 +154,13 @@ def getSearches(request, id):
 
 
 def getFriends(request, id):
-    searches = sampleFriends
-    return JsonResponse(searches)
+    friendsList = Friends.objects.raw('SELECT id, friendTo FROM friend WHERE friendFrom = "' + id + '"')
+    outputArr = []
+    for friend in friendsList:
+
+        outputArr.append({"id" : friend.id, "display_name": friend.friendTo})
+    returnVal = {"data": outputArr}
+    return JsonResponse(returnVal)
 
 @csrf_exempt #remove the security checks for post request
 def delFriend(request):
@@ -164,16 +169,20 @@ def delFriend(request):
         userID = body["currUser"]
         friendID = body["friend"]
 
+        cursor = connections['default'].cursor()
+        cursor.execute('DELETE FROM friend WHERE friendFrom = "' + userID + '" AND friendTo = "' + friendID + '"')
+
     return JsonResponse({})
 
-
 @csrf_exempt #remove the security checks for post request
+
 def addFriend(request):
     if request.method == 'POST':
         body = json.loads(request.body)
         userID = body["currUser"]
         friendID = body["friend"]
-
+        cursor = connections['default'].cursor()
+        cursor.execute('INSERT INTO friend (friendFrom, friendTo) VALUES ("' + userID + '", "' + friendID + '")')
     return JsonResponse({})
 
 def getFavSong(request, id):

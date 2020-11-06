@@ -76,3 +76,17 @@ class PrevSearches(models.Model):
 
     class Meta:
         db_table = 'prev_search'
+
+class Person(models.Model):
+    person_id = models.TextField(blank=True, null=True)
+    spotifyID = models.TextField(blank=True, null=True)
+    favoriteSong = models.TextField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'person'
+        
+class Friends(models.Model):
+    friendFrom = models.TextField(blank=True, null=True)
+    friendTo = models.TextField(blank=True, null=True)
+    class Meta:
+        db_table = 'friend'
