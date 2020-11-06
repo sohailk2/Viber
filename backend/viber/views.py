@@ -8,14 +8,6 @@ from django.db import connections
 
 import random
 
-sampleFriends = {'data': [
-        {"id" : "1", "display_name": "sohail"},
-        {"id" : "2", "display_name": "mesa"},
-        {"id" : "3", "display_name": "mihika"},
-        {"id" : "4", "display_name": "charlie"},
-        {"id" : "5", "display_name": "abdu"}
-    ]}
-
 def index(request):
     return HttpResponse("Hello, world. You're at the viber index.")
 
@@ -47,10 +39,12 @@ def getPlaylist(request):
         body = json.loads(request.body)
         track_id = body["track_id"]
         spotifyUID = body["UID"]
+
         cursor = connections['default'].cursor()
+        #insert into previous searches table
         cursor.execute('INSERT INTO prev_search (track_id, spotifyUID) VALUES ("' + track_id + '", "' + spotifyUID + '")')
 
-
+        #finding associated song title and artist name
         rawQueryForSongName = 'SELECT track_id, title FROM songs WHERE track_id = "' + track_id + '"'
         songName = (Songs.objects.raw(rawQueryForSongName))[0].title
         rawQueryForArtistName = 'SELECT track_id, artist_name FROM songs WHERE track_id = "' + track_id + '"'
@@ -70,10 +64,8 @@ def getPlaylist(request):
         query3 = ArtistTerm.objects.raw(query3Val)
         common = query3[0].artist_id
 
-        #SET OPERATION: union of familiar artists and ones with similar genre
-        # query4Val = 'SELECT track_id, title, artist_name FROM songs WHERE artist_familiarity >= 1.0'
+        #find songs from the similar artist
         query4Val = 'SELECT track_id, title, artist_name FROM songs WHERE artist_id = "' + str(common) + '"'
-        # UNION SELECT track_id, title, artist_name FROM songs WHERE artist_id = "' + str(common) + '"'
         query4 = Songs.objects.raw(query4Val)
     
         sampleResponse = {"data": [
@@ -86,19 +78,20 @@ def getPlaylist(request):
 
 def getSong(request, id):
     track_id = id
+    #finding associated song title and artist name
     rawQueryForSongName = 'SELECT track_id, title FROM songs WHERE track_id = "' + track_id + '"'
     songName = (Songs.objects.raw(rawQueryForSongName))[0].title
     rawQueryForArtistName = 'SELECT track_id, artist_name FROM songs WHERE track_id = "' + track_id + '"'
     artistName = (Songs.objects.raw(rawQueryForArtistName))[0].artist_name
 
     sampleResponse = {"track_id":track_id, "title": songName, "artist_name": artistName}
-
     return JsonResponse(sampleResponse)
 
 def getSearches(request, id):
 
     UID = id
 
+    #querying database to return previous searches
     song_list = PrevSearches.objects.raw('SELECT id, track_id FROM prev_search WHERE spotifyUID = "' + UID + '"')
 
     if(len(list(song_list)) == 0):
@@ -106,6 +99,7 @@ def getSearches(request, id):
     else:
         outputArr = []
         for song in song_list:
+            #finding associated song title and artist name
             songInfo = (Songs.objects.raw('SELECT track_id, title FROM songs WHERE track_id = "' + song.track_id + '"'))[0]
             outputArr.append({"track_id" : song.track_id, "title": songInfo.title, "artist_name": songInfo.artist_name})
         returnVal = {"data": outputArr}
@@ -114,10 +108,10 @@ def getSearches(request, id):
 
 
 def getFriends(request, id):
+    #query database to find current user's friends
     friendsList = Following.objects.raw('SELECT id, followingUID FROM following WHERE currentUser = "' + id + '"')
     outputArr = []
     for friend in friendsList:
-
         outputArr.append({"id" : friend.id, "display_name": friend.followingUID})
     returnVal = {"data": outputArr}
     return JsonResponse(returnVal)
@@ -130,6 +124,7 @@ def delFriend(request):
         friendID = body["friend"]
 
         cursor = connections['default'].cursor()
+        #delete person user is following from database
         cursor.execute('DELETE FROM following WHERE currentUser = "' + userID + '" AND followingUID = "' + friendID + '"')
 
     return JsonResponse({})
@@ -142,10 +137,12 @@ def addFriend(request):
         userID = body["currUser"]
         friendID = body["friend"]
         cursor = connections['default'].cursor()
+        #insert person user would like to follow
         cursor.execute('INSERT INTO following (currentUser, followingUID) VALUES ("' + userID + '", "' + friendID + '")')
     return JsonResponse({})
 
 def getFavSong(request, id):
+    #query database to get user's favorite song
     favSong = Person.objects.raw('SELECT id, favoriteSong FROM person WHERE spotifyUID = "' + id + '"')[0]
     return JsonResponse({"song" : favSong.favoriteSong})
 
@@ -157,6 +154,7 @@ def setFavSong(request):
         favSong = body["song"]
 
         cursor = connections['default'].cursor()
+        #update database to change user's favorite song
         cursor.execute('UPDATE person SET favoriteSong = "' + favSong + '" WHERE spotifyUID = "' + userID + '"')
     
     return JsonResponse({"success" : "true"})
@@ -169,6 +167,7 @@ def loginUser(request):
         userID = body["UID"]
 
         cursor = connections['default'].cursor()
+        #insert person into database on first time login
         cursor.execute('INSERT INTO person (spotifyUID, favoriteSong) VALUES ("' + userID + '", "Click to add favorite song")')
 
     return JsonResponse({"success" : "true"})

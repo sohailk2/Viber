@@ -1,8 +1,5 @@
 from django.db import models
 
-# Create your models here.
-# the sql stuff?
-
 class Songs(models.Model):
     track_id = models.TextField(primary_key=True, blank=True, null=False)
     title = models.TextField(blank=True, null=True)
@@ -26,7 +23,6 @@ class Songs(models.Model):
 
     def __str__(self):
         return self
-
 
 class ArtistMbtag(models.Model):
     artist = models.ForeignKey('Artists', models.DO_NOTHING, blank=True, null=True)
