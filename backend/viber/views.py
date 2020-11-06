@@ -175,3 +175,15 @@ def addFriend(request):
         friendID = body["friend"]
 
     return JsonResponse({})
+
+def getFavSong(request, id):
+    return JsonResponse({"song" : "Like Woah - Logic"})
+
+@csrf_exempt #remove the security checks for post request
+def setFavSong(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        userID = body["UID"]
+        newSong = body["song"]
+    
+    return JsonResponse({"success" : "true"})

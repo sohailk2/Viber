@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Text, Grid, Box, Button, Anchor, Form, FormField, TextInput } from 'grommet';
 import { useHistory } from "react-router-dom";
+import Modal from 'react-modal';
 
 
 import SongComponent from './SongComponent';
+import EditableText from './EditableText'
+
 
 export default function UserInfo(props) {
 
@@ -13,6 +16,21 @@ export default function UserInfo(props) {
     // const [props.userInfo, setUserInfo] = useState(null);
     // history.push('/someRoute')
 
+    let customStyles = {
+        overlay: { backgroundColor: 'rgba(255, 255, 255, .90)' },
+        content: {
+            top: '50%',
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            width: '50%',
+            height: '50%',
+            padding: '0px',
+            marginRight: '-50%',
+            border: '',
+            transform: 'translate(-50%, -50%)'
+        }
+    };
 
     // const token = "BQAD4pJHqlvDpcne93XTG7S1rr09ik0H7unN8aH7bTBdpr-berpK_om4qW1JhLTullh-miTq8zrruznHFW4dviMyHyg79wig4ImJs0Vbxi-rOxsj-POxSZ_A_rTz6_AXf_e92dcP95n8o5ExBpNGaqGl5cGWrx6l"
     const token = props.token;
@@ -32,13 +50,41 @@ export default function UserInfo(props) {
             })
     }, [page]);
 
+    var subtitle;
+    const [modalIsOpen, setIsOpen] = React.useState(false);
+    function openModal() {
+        setIsOpen(true);
+    }
+
+    function afterOpenModal() {
+        // references are now sync'd and can be accessed.
+        // subtitle.style.color = '#f00';
+    }
+
+    function closeModal() {
+        setIsOpen(false);
+    }
+
     return (
         <div style={{ width: '100%' }}>
             {props.userInfo ?
 
                 <div>
-                    <h1>Hello <Anchor target="_blank" href={props.userInfo.external_urls.spotify}><Text size="xlarge" color="brand">{props.userInfo.display_name}</Text></Anchor></h1>
-                    {/* {JSON.stringify(userInfo)} */}
+                    <h1>
+                        Hello:
+                        <Anchor target="_blank" href={props.userInfo.external_urls.spotify}><Text size="xlarge" color="brand">{props.userInfo.display_name}</Text></Anchor>
+                    </h1>
+                    <Button onClick={openModal} hoverIndicator={true} primary={true} label="More Info" />
+
+                    <Modal
+                        isOpen={modalIsOpen}
+                        onAfterOpen={afterOpenModal}
+                        onRequestClose={closeModal}
+                        style={customStyles}
+                        contentLabel="Example Modal"
+                    >
+                        <EditUser userInfo={props.userInfo} />
+                    </Modal>
 
                     <Box
                         direction="row"
@@ -76,6 +122,63 @@ export default function UserInfo(props) {
 
     )
 }
+
+
+function EditUser(props) {
+    return (
+
+        <Box pad="medium" border={{ color: 'brand', size: 'large' }} style={{ width: '100%', height: '100%' }}>
+
+            <Text size="large" >Spotify ID: <Text size="medium" color="brand">{props.userInfo.display_name}</Text></Text>
+
+            <Text size="large" >Followers Favorite Songs: <Text size="medium" color="brand">[]</Text></Text>
+
+            <Text size="large" >Most Searched Genres: <Text size="medium" color="brand">Pop</Text></Text>
+
+            <FavoriteSong userInfo={props.userInfo}/>
+
+        </Box>
+
+    )
+}
+
+function FavoriteSong(props) {
+    const [favSong, setFavSong] = React.useState(null);
+
+    useEffect(() => {
+
+        axios.get(`http://127.0.0.1:8000/viber/getFavSong/${props.userInfo.display_name}/`)
+            .then(res => {
+                setFavSong(res.data.song);
+            })
+    }, [favSong]);
+
+    let updateFavSong = (newSong) => {
+        axios.post(`http://127.0.0.1:8000/viber/setFavSong/`, 
+        {"UID": props.userInfo.display_name, "song": newSong})
+        .then(res => {
+            
+        }) 
+    };
+
+    return (
+        <Box>
+            <h3>My Favorite Song: (Click on text below to edit)</h3>
+            {/* <TextInput
+                placeholder="type here"
+                value={value}
+                onChange={event => setValue(event.target.value)}
+            /> */}
+            {favSong ? 
+                <EditableText value={favSong} callback = {updateFavSong} editClassName="form-control"/>
+                :
+                'Loading...'
+            }
+
+        </Box>
+    );
+}
+
 
 function PreviousSearches(props) {
 
