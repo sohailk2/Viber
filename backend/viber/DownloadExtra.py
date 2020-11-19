@@ -20,6 +20,8 @@ user = sp.user('plamere')
 # type* track
 q = "track:nightcrawler artist:travis scott"
 output = sp.search(q, limit=1, offset=0, type='track', market=None)
-# print(output)
-print(output["tracks"]["items"][0]["album"]["artists"])
-print(output["tracks"]["items"][0]["album"]["artists"])
+print(output["tracks"]["items"][0]["uri"])
+track_uri = output["tracks"]["items"][0]["uri"]
+
+output = sp.audio_features([track_uri])
+print(output)
