@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from viber.models import Songs, ArtistTerm, PrevSearches, Following, Person
+from viber.models import PrevSearches, Following, Person, SpotifyTable
 import json
 from django.db import connections
 
@@ -18,15 +18,14 @@ def search(request):
         body = json.loads(request.body)
         songName = body["songName"]
     
-        #QUERY the database for the song and picks the ones with the most familiar artists
-        song_list = Songs.objects.raw('SELECT track_id, title FROM songs WHERE title LIKE \'%{name}%\' ORDER BY artist_familiarity DESC LIMIT 20'.format(name = songName))
+        song_list = SpotifyTable.objects.raw('SELECT rowid, track_name FROM spotify_table WHERE track_name LIKE \'%{name}%\''.format(name = songName))
 
         if(len(list(song_list)) == 0):
             returnVal = {"data": []}
         else:
             outputArr = []
             for song in song_list:
-                outputArr.append({"track_id" : song.track_id, "title": song.title, "artist_name": song.artist_name})
+                outputArr.append({"track_id" : song.track_id, "title": song.track_name, "artist_name": song.artist_name})
             returnVal = {"data": outputArr}
 
         return JsonResponse(returnVal)
@@ -44,45 +43,30 @@ def getPlaylist(request):
         #insert into previous searches table
         cursor.execute('INSERT INTO prev_search (track_id, spotifyUID) VALUES ("' + track_id + '", "' + spotifyUID + '")')
 
-        #finding associated song title and artist name
-        rawQueryForSongName = 'SELECT track_id, title FROM songs WHERE track_id = "' + track_id + '"'
-        songName = (Songs.objects.raw(rawQueryForSongName))[0].title
-        rawQueryForArtistName = 'SELECT track_id, artist_name FROM songs WHERE track_id = "' + track_id + '"'
-        artistName = (Songs.objects.raw(rawQueryForArtistName))[0].artist_name
+        rawQueryForSongName = 'SELECT rowid, track_id FROM spotify_table WHERE track_id = "' + track_id + '"'
+        song = (SpotifyTable.objects.raw(rawQueryForSongName))[0]
+        similarGenre = SpotifyTable.objects.raw('SELECT rowid, track_name FROM spotify_table WHERE genre =  "' + song.genre + '" LIMIT 20')
 
-        #find artist_id for given track
-        queryVal = 'SELECT track_id, artist_id FROM songs WHERE title = "' + songName + '" AND artist_name = "' + artistName + '"'
-        query = Songs.objects.raw(queryVal)
-        artistID = query[0].artist_id
+        if(len(list(similarGenre)) == 0):
+            returnVal = {"data": []}
+        else:
+            outputArr = []
+            for song in similarGenre:
+                outputArr.append({"track_id" : song.track_id, "title": song.track_name, "artist_name": song.artist_name})
+            returnVal = {"data": outputArr}
 
-        #find genre (term) given artist_id
-        query2 = ArtistTerm.objects.raw('SELECT artist_id, term FROM artist_term WHERE artist_id = %s', [artistID])
-        term = query2[0].term
+        return JsonResponse(returnVal)
 
-        #find other artist_ids with same term
-        query3Val = 'SELECT artist_id, term FROM artist_term WHERE term = "' + term + '"'
-        query3 = ArtistTerm.objects.raw(query3Val)
-        common = query3[0].artist_id
-
-        #find songs from the similar artist
-        query4Val = 'SELECT track_id, title, artist_name FROM songs WHERE artist_id = "' + str(common) + '"'
-        query4 = Songs.objects.raw(query4Val)
-    
-        sampleResponse = {"data": [
-            {"track_id":1, "title": query4[0].title, "artist_name": query4[0].artist_name},
-            {"track_id":2, "title": query4[1].title, "artist_name": query4[1].artist_name}
-        ]}
-        return JsonResponse(sampleResponse)
     else:
         return "INVALID"
 
 def getSong(request, id):
     track_id = id
     #finding associated song title and artist name
-    rawQueryForSongName = 'SELECT track_id, title FROM songs WHERE track_id = "' + track_id + '"'
-    songName = (Songs.objects.raw(rawQueryForSongName))[0].title
-    rawQueryForArtistName = 'SELECT track_id, artist_name FROM songs WHERE track_id = "' + track_id + '"'
-    artistName = (Songs.objects.raw(rawQueryForArtistName))[0].artist_name
+    rawQueryForSongName = 'SELECT rowid, track_id, track_name FROM spotify_table WHERE track_id = "' + track_id + '"'
+    songName = (SpotifyTable.objects.raw(rawQueryForSongName))[0].track_name
+    rawQueryForArtistName = 'SELECT rowid, track_id, artist_name FROM spotify_table WHERE track_id = "' + track_id + '"'
+    artistName = (SpotifyTable.objects.raw(rawQueryForArtistName))[0].artist_name
 
     sampleResponse = {"track_id":track_id, "title": songName, "artist_name": artistName}
     return JsonResponse(sampleResponse)
@@ -100,8 +84,9 @@ def getSearches(request, id):
         outputArr = []
         for song in song_list:
             #finding associated song title and artist name
-            songInfo = (Songs.objects.raw('SELECT track_id, title FROM songs WHERE track_id = "' + song.track_id + '"'))[0]
-            outputArr.append({"track_id" : song.track_id, "title": songInfo.title, "artist_name": songInfo.artist_name})
+            songInfo = (SpotifyTable.objects.raw('SELECT rowid, track_id, track_name FROM spotify_table WHERE track_id = "' + song.track_id + '"'))[0]
+            
+            outputArr.append({"track_id" : song.track_id, "title": songInfo.track_name, "artist_name": songInfo.artist_name})
         returnVal = {"data": outputArr}
 
     return JsonResponse(returnVal)
