@@ -48,6 +48,19 @@ class Results extends React.Component {
                 this.setState({ currSong: res.data })
             });
     }
+    getSimiliarSong = (songID) => {
+        // console.log(this.props.userInfo.display_name);
+        // var csrftoken = Cookies.get('csrftoken');
+        axios.post(`http://127.0.0.1:8000/viber/getSimiliar/`, {
+            "track_id" : songID,
+            "UID" : this.props.userInfo.display_name
+        })
+            .then(res => {
+                console.log("DATA", res.data.data);
+                this.setState({ playlist: res.data.data, error: res.data.error })
+            });
+    }
+
 
     render() {
         if (this.state.error != null) {
@@ -64,7 +77,7 @@ class Results extends React.Component {
                             <Main pad="large">
                                 <span>
                                     <Heading>
-                                        Results for: 
+                                        Results for:
                                     </Heading>
                                 </span>
                                 <SongComponent key={this.state.currSong.id} song={this.state.currSong} onClick={() => {}} />

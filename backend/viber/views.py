@@ -17,7 +17,7 @@ def search(request):
         print("request ->", request.body)
         body = json.loads(request.body)
         songName = body["songName"]
-    
+
         song_list = SpotifyTable.objects.raw('SELECT rowid, track_name FROM spotify_table WHERE track_name LIKE \'%{name}%\''.format(name = songName))
 
         if(len(list(song_list)) == 0):
@@ -85,7 +85,7 @@ def getSearches(request, id):
         for song in song_list:
             #finding associated song title and artist name
             songInfo = (SpotifyTable.objects.raw('SELECT rowid, track_id, track_name FROM spotify_table WHERE track_id = "' + song.track_id + '"'))[0]
-            
+
             outputArr.append({"track_id" : song.track_id, "title": songInfo.track_name, "artist_name": songInfo.artist_name})
         returnVal = {"data": outputArr}
 
@@ -141,7 +141,7 @@ def setFavSong(request):
         cursor = connections['default'].cursor()
         #update database to change user's favorite song
         cursor.execute('UPDATE person SET favoriteSong = "' + favSong + '" WHERE spotifyUID = "' + userID + '"')
-    
+
     return JsonResponse({"success" : "true"})
 
 # just make a new user if not a new user
@@ -154,5 +154,31 @@ def loginUser(request):
         cursor = connections['default'].cursor()
         #insert person into database on first time login
         cursor.execute('INSERT INTO person (spotifyUID, favoriteSong) VALUES ("' + userID + '", "Click to add favorite song")')
+
+    return JsonResponse({"success" : "true"})
+
+@csrf_exempt
+def getSimiliarSongs(request):
+    if request.method == 'POST':
+        body = json.loads(request.body)
+        track_id = body["track_id"]
+        spotifyUID = body["UID"]
+        cursor = connections['default'].cursor()
+        #insert into previous searches table
+        cursor.execute('INSERT INTO prev_search (track_id, spotifyUID) VALUES ("' + track_id + '", "' + spotifyUID + '")')
+
+        rawQueryForSongName = 'SELECT rowid, track_id FROM spotify_table WHERE track_id = "' + track_id + '"'
+        song = (SpotifyTable.objects.raw(rawQueryForSongName))[0]
+
+        similiarSongs = SpotifyTable.objects.raw('SELECT rowid, track_name FROM spotify_table WHERE danceability =  "' + song.danceability + '" LIMIT 20” + “AND WHERE energy = “ + song.energy + “ LIMIT 20” + “AND WHERE loudness = “ + song.loudness + “ LIMIT 20” + “AND WHERE speechless = “ + song.speechiness + “LIMIT 20” + “AND WHERE acousticness = “ + song.acousticness + “LIMIT 20” + “AND WHERE instrumentalness = “ + song.instrumentalness + “LIMIT 20” + “AND WHERE valence = “ + song.valence + “LIMIT 20” + “AND WHERE tempo = “ + song.tempo + " LIMIT 20"')
+
+
+        if(len(list(similiarSongs)) == 0):
+            returnVal = {"data": []}
+        else:
+            outputArr = []
+            for song in similiarSongs:
+                outputArr.append({"track_id" : song.track_id, "title": song.track_name, "artist_name": song.artist_name})
+                returnVal = {"data": outputArr}
 
     return JsonResponse({"success" : "true"})

@@ -13,7 +13,8 @@ urlpatterns = [
     path('addFriend/', views.addFriend, name='addFriend'),
     path('getFavSong/<str:id>/', views.getFavSong, name='getFavSong'),
     path('setFavSong/', views.setFavSong, name='setFavSong'),
-    path('loginUser/', views.loginUser, name='loginUser')
+    path('loginUser/', views.loginUser, name='loginUser'),
+    path('getSimiliarSongs/', views.getSimiliarSongs, name='getSimiliarSongs')
 
 
 ]

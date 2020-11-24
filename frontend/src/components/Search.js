@@ -51,6 +51,9 @@ class Search extends React.Component {
         // alert(songID);
         this.setState({songSelected: songID});
     }
+    getSimiliarSong = (songID) => {
+        this.setState({songSelected: songID});
+    }
 
     render() {
 
