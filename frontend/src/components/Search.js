@@ -51,7 +51,7 @@ class Search extends React.Component {
         // alert(songID);
         this.setState({songSelected: songID});
     }
-    getSimiliarSong = (songID) => {
+    getSimiliarSongs = (songID) => {
         this.setState({songSelected: songID});
     }
 
@@ -120,7 +120,7 @@ class Search extends React.Component {
 //                 <Box direction="row">
 //                     <Box pad={{ right: "55px" }}>{props.song.artist}</Box>
 //                 </Box>
-                
+
 //             </Box>
 //         </Button>
 //     )

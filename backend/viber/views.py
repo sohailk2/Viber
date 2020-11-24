@@ -165,12 +165,20 @@ def getSimiliarSongs(request):
         spotifyUID = body["UID"]
         cursor = connections['default'].cursor()
         #insert into previous searches table
-        cursor.execute('INSERT INTO prev_search (track_id, spotifyUID) VALUES ("' + track_id + '", "' + spotifyUID + '")')
+        #cursor.execute('INSERT INTO prev_search (track_id, spotifyUID) VALUES ("' + track_id + '", "' + spotifyUID + '")')
 
-        rawQueryForSongName = 'SELECT rowid, track_id FROM spotify_table WHERE track_id = "' + track_id + '"'
+        cursor.execute('SELECT rowid, track_name FROM spotify_table WHERE danceability =  "' + song.danceability + '" LIMIT 20” + “AND WHERE energy = “ + song.energy + “ LIMIT 20” + “AND WHERE loudness = “ + song.loudness + “ LIMIT 20” + “AND WHERE speechless = “ + song.speechiness + “LIMIT 20” + “AND WHERE acousticness = “ + song.acousticness + “LIMIT 20” + “AND WHERE instrumentalness = “ + song.instrumentalness + “LIMIT 20” + “AND WHERE valence = “ + song.valence + “LIMIT 20” + “AND WHERE tempo = “ + song.tempo + " LIMIT 20"')
+
+        #cursor.execute("CREATE PROCEDURE GetSimiliarSongs()
+  BEGIN
+  SELECT *
+  FROM Songs
+  WHERE Songs.danceability += .25 AND Songs.energy += .25 AND
+  Songs.loudness += .25 AND Songs.speechiness += .25 += Songs.acousticness += .25 AND Songs.instrumentalness += .25 AND Songs.valence += .25 AND Songs.tempo += .25
+")
         song = (SpotifyTable.objects.raw(rawQueryForSongName))[0]
 
-        similiarSongs = SpotifyTable.objects.raw('SELECT rowid, track_name FROM spotify_table WHERE danceability =  "' + song.danceability + '" LIMIT 20” + “AND WHERE energy = “ + song.energy + “ LIMIT 20” + “AND WHERE loudness = “ + song.loudness + “ LIMIT 20” + “AND WHERE speechless = “ + song.speechiness + “LIMIT 20” + “AND WHERE acousticness = “ + song.acousticness + “LIMIT 20” + “AND WHERE instrumentalness = “ + song.instrumentalness + “LIMIT 20” + “AND WHERE valence = “ + song.valence + “LIMIT 20” + “AND WHERE tempo = “ + song.tempo + " LIMIT 20"')
+        #similiarSongs = SpotifyTable.objects.raw('SELECT rowid, track_name FROM spotify_table WHERE danceability =  "' + song.danceability + '" LIMIT 20” + “AND WHERE energy = “ + song.energy + “ LIMIT 20” + “AND WHERE loudness = “ + song.loudness + “ LIMIT 20” + “AND WHERE speechless = “ + song.speechiness + “LIMIT 20” + “AND WHERE acousticness = “ + song.acousticness + “LIMIT 20” + “AND WHERE instrumentalness = “ + song.instrumentalness + “LIMIT 20” + “AND WHERE valence = “ + song.valence + “LIMIT 20” + “AND WHERE tempo = “ + song.tempo + " LIMIT 20"')
 
 
         if(len(list(similiarSongs)) == 0):
