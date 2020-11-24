@@ -48,7 +48,7 @@ class Results extends React.Component {
                 this.setState({ currSong: res.data })
             });
     }
-    getSimiliarSong = (songID) => {
+    getSimilarSongs = (songID) => {
         // console.log(this.props.userInfo.display_name);
         // var csrftoken = Cookies.get('csrftoken');
         axios.post(`http://127.0.0.1:8000/viber/getSimiliar/`, {

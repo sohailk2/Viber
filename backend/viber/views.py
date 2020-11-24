@@ -158,7 +158,7 @@ def loginUser(request):
     return JsonResponse({"success" : "true"})
 
 @csrf_exempt
-def getSimiliarSongs(request):
+def getSimilarSongs(request):
     if request.method == 'POST':
         body = json.loads(request.body)
         track_id = body["track_id"]

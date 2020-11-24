@@ -14,7 +14,7 @@ urlpatterns = [
     path('getFavSong/<str:id>/', views.getFavSong, name='getFavSong'),
     path('setFavSong/', views.setFavSong, name='setFavSong'),
     path('loginUser/', views.loginUser, name='loginUser'),
-    path('getSimiliarSongs/', views.getSimiliarSongs, name='getSimiliarSongs')
+    path('getSimilarSongs/', views.getSimilarSongs, name='getSimilarSongs')
 
 
 ]
