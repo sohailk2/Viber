@@ -45,13 +45,21 @@ def getPlaylist(request):
 
         rawQueryForSongName = 'SELECT rowid, track_id FROM spotify_table WHERE track_id = "' + track_id + '"'
         song = (SpotifyTable.objects.raw(rawQueryForSongName))[0]
-        similarGenre = SpotifyTable.objects.raw('SELECT rowid, track_name FROM spotify_table WHERE genre =  "' + song.genre + '" LIMIT 20')
 
-        if(len(list(similarGenre)) == 0):
+        # query = 'SELECT rowid, track_name FROM spotify_table WHERE danceability =  \'{danceability}\' AND energy = \'{energy}\' AND loudness = \'{loudness}\' AND speechiness = \'{speechiness}\' AND acousticness = \'{acousticness}\' AND instrumentalness = \'{instrumentalness}\' AND valence = \'{valence}\' AND tempo = \'{tempo}\' LIMIT 20'.format(danceability = song.danceability, energy = song.energy, loudness = song.loudness, speechiness = song.speechiness, acousticness = song.acousticness, instrumentalness = song.instrumentalness, valence = song.valence, tempo = song.tempo)
+
+        query = 'SELECT rowid, track_name FROM spotify_table WHERE danceability BETWEEN \'{danceability1}\' AND \'{danceability2}\' LIMIT 20'.format(danceability1 = song.danceability - 0.25, danceability2 = song.danceability + 0.25)
+        print(query)
+        similiarSongs = SpotifyTable.objects.raw(query)
+        for song in similiarSongs:
+            print(song.track_name)
+
+
+        if(len(list(similiarSongs)) == 0):
             returnVal = {"data": []}
         else:
             outputArr = []
-            for song in similarGenre:
+            for song in similiarSongs:
                 outputArr.append({"track_id" : song.track_id, "title": song.track_name, "artist_name": song.artist_name})
             returnVal = {"data": outputArr}
 
