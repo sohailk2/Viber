@@ -48,7 +48,25 @@ def getPlaylist(request):
 
         # query = 'SELECT rowid, track_name FROM spotify_table WHERE danceability =  \'{danceability}\' AND energy = \'{energy}\' AND loudness = \'{loudness}\' AND speechiness = \'{speechiness}\' AND acousticness = \'{acousticness}\' AND instrumentalness = \'{instrumentalness}\' AND valence = \'{valence}\' AND tempo = \'{tempo}\' LIMIT 20'.format(danceability = song.danceability, energy = song.energy, loudness = song.loudness, speechiness = song.speechiness, acousticness = song.acousticness, instrumentalness = song.instrumentalness, valence = song.valence, tempo = song.tempo)
 
-        query = 'SELECT rowid, track_name FROM spotify_table WHERE danceability BETWEEN \'{danceability1}\' AND \'{danceability2}\' LIMIT 20'.format(danceability1 = song.danceability - 0.25, danceability2 = song.danceability + 0.25)
+        query = ("""SELECT rowid, track_name FROM spotify_table WHERE 
+            danceability BETWEEN {danceability1} AND {danceability2} AND
+            energy BETWEEN {energy1} AND {energy2} AND
+            loudness BETWEEN {loudness1} AND {loudness2} AND
+            speechiness BETWEEN {speechiness1} AND {speechiness2} AND
+            acousticness BETWEEN {acousticness1} AND {acousticness2} AND
+            instrumentalness BETWEEN {instrumentalness1} AND {instrumentalness2} AND
+            valence BETWEEN {valence1} AND {valence2} AND
+            tempo BETWEEN {tempo1} AND {tempo2}
+            LIMIT 20
+            """).format(
+            danceability1=song.danceability-0.25, danceability2=song.danceability+0.25, 
+            energy1=song.energy-0.25, energy2=song.energy+0.25,
+            loudness1=song.loudness-0.25,loudness2=song.loudness+0.25,
+            speechiness1=song.speechiness-0.25, speechiness2=song.speechiness+0.25,
+            acousticness1=song.acousticness-0.25, acousticness2=song.acousticness+0.25,
+            instrumentalness1=song.instrumentalness-0.25, instrumentalness2=song.instrumentalness+0.25,
+            valence1=song.valence-0.25, valence2=song.valence+0.25,
+            tempo1=song.tempo-25, tempo2=song.tempo+25)
         print(query)
         similiarSongs = SpotifyTable.objects.raw(query)
         for song in similiarSongs:
