@@ -29,7 +29,7 @@ Pseudocode:
 def recommend(orignalSong, songs):
 
     originalSongSent = getSentiment(orignalSong)
-    sentiments = list(map(getSentiment, songs[:10]))
+    sentiments = list(map(getSentiment, songs[:3]))
     
     # sentiments compared with original song
     sentDist = list(map(lambda x : abs(x - originalSongSent), sentiments))

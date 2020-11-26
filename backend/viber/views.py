@@ -26,10 +26,20 @@ def search(request):
     
         nameQuery = "" if songName == None or songName == "" else "track_name LIKE '%{name}%'".format(name = songName)
         artistQuery = "" if artistName == None or artistName == "" else "artist_name LIKE '%{name}%'".format(name = artistName)
+   
         nameArt_and = "AND" if artistName and songName else ""
+
+        # https://stackoverflow.com/questions/18453531/sql-query-sort-by-closest-match
+        # so sort by closest to query
+        # artistOrderBy = "" if artistName == None or artistName == "" else "ORDER BY Difference(artist_name, '%{name}%') DESC".format(name = artistName)
+        artistOrderBY = ""
+
         # distinct not working because row_id is primary key
-        query = "SELECT DISTINCT 1 as rowid, track_id, track_name FROM spotify_table WHERE {nameQuery} {nameArt_and} {artistQuery}".format(nameQuery = nameQuery, nameArt_and = nameArt_and, artistQuery = artistQuery)
-        print(query)
+        # to make distinct hack work properly, need to import all other fields manually
+        # if u add genre then duplicates b/c songs have multiple genres
+        selectQuery = "artist_name, track_name, track_id, popularity, acousticness, danceability, duration_ms, energy, instrumentalness, key, liveness, loudness, mode, speechiness, tempo, time_signature, valence"
+        query = "SELECT DISTINCT 1 as rowid, {selectQuery} FROM spotify_table WHERE {nameQuery} {nameArt_and} {artistQuery} {artistOrderBy}".format(selectQuery = selectQuery, nameQuery = nameQuery, nameArt_and = nameArt_and, artistQuery = artistQuery, artistOrderBy = artistOrderBY)
+        # print(query)
         # return JsonResponse({})
         song_list = SpotifyTable.objects.raw(query)
 
@@ -56,6 +66,7 @@ def getPlaylist(request):
         #insert into previous searches table
         cursor.execute('INSERT INTO prev_search (track_id, spotifyUID) VALUES ("' + track_id + '", "' + spotifyUID + '")')
 
+        selectQuery = "artist_name, track_name, track_id, popularity, acousticness, danceability, duration_ms, energy, instrumentalness, key, liveness, loudness, mode, speechiness, tempo, time_signature, valence"
         rawQueryForSongName = 'SELECT rowid, track_id FROM spotify_table WHERE track_id = "' + track_id + '"'
         song = (SpotifyTable.objects.raw(rawQueryForSongName))[0]
 
