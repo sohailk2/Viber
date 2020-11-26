@@ -21,12 +21,21 @@ class Search extends React.Component {
     }
 
     validate = () => {
-        if(!this.state.formData.hasOwnProperty('songName') || this.state.formData.songName.trim() == ""){
-            this.setState({errors:{"songName": "Enter a name"}});
-            return false;
+
+        //as long as smthn is put in the 
+        let valid = 0;
+
+        if(this.state.formData.hasOwnProperty('songName') && !this.state.formData.songName.trim() == ""){
+            // this.setState({errors:{"songName": "Enter a name"}});
+            // return false;
+            valid++;
         }
 
-        return true;
+        if(this.state.formData.hasOwnProperty('artistName') && !this.state.formData.artistName.trim() == ""){
+            valid++;
+        }
+
+        return valid;
     }
 
     submitForm = () => {
@@ -71,6 +80,10 @@ class Search extends React.Component {
                 >
                     <FormField name="songName" htmlfor="text-input-id" label="Enter a song name!">
                         <TextInput id="text-input-id" name="songName" />
+                    </FormField>
+
+                    <FormField name="artistName" htmlfor="text-input-id" label="Enter an artist name!">
+                        <TextInput id="text-input-id" name="artistName" />
                     </FormField>
 
                     <Box direction="row" gap="medium">

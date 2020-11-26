@@ -21,9 +21,17 @@ def search(request):
     if request.method == 'POST':
         print("request ->", request.body)
         body = json.loads(request.body)
-        songName = body["songName"]
+        songName = body.get("songName", None)
+        artistName = body.get("artistName", None)
     
-        song_list = SpotifyTable.objects.raw('SELECT rowid, track_name FROM spotify_table WHERE track_name LIKE \'%{name}%\''.format(name = songName))
+        nameQuery = "" if songName == None or songName == "" else "track_name LIKE '%{name}%'".format(name = songName)
+        artistQuery = "" if artistName == None or artistName == "" else "artist_name LIKE '%{name}%'".format(name = artistName)
+        nameArt_and = "AND" if artistName and songName else ""
+        # distinct not working because row_id is primary key
+        query = "SELECT DISTINCT 1 as rowid, track_id, track_name FROM spotify_table WHERE {nameQuery} {nameArt_and} {artistQuery}".format(nameQuery = nameQuery, nameArt_and = nameArt_and, artistQuery = artistQuery)
+        print(query)
+        # return JsonResponse({})
+        song_list = SpotifyTable.objects.raw(query)
 
         if(len(list(song_list)) == 0):
             returnVal = {"data": []}
