@@ -39,7 +39,7 @@ def recommend(orignalSong, songs):
     sortedRaw = sorted(zip(sentDist,songs))
 
     sortedSongs = [x for _,x in sorted(zip(sentDist,songs))]
-    sortedSents = [x for _,x in sorted(zip(sentDist,songs))]
+    sortedSents = [y for y,_ in sorted(zip(sentDist,songs))]
 
     return sortedSongs, sortedSents
 

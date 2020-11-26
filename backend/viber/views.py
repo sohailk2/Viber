@@ -51,8 +51,6 @@ def getPlaylist(request):
         rawQueryForSongName = 'SELECT rowid, track_id FROM spotify_table WHERE track_id = "' + track_id + '"'
         song = (SpotifyTable.objects.raw(rawQueryForSongName))[0]
 
-        # query = 'SELECT rowid, track_name FROM spotify_table WHERE danceability =  \'{danceability}\' AND energy = \'{energy}\' AND loudness = \'{loudness}\' AND speechiness = \'{speechiness}\' AND acousticness = \'{acousticness}\' AND instrumentalness = \'{instrumentalness}\' AND valence = \'{valence}\' AND tempo = \'{tempo}\' LIMIT 20'.format(danceability = song.danceability, energy = song.energy, loudness = song.loudness, speechiness = song.speechiness, acousticness = song.acousticness, instrumentalness = song.instrumentalness, valence = song.valence, tempo = song.tempo)
-
         query = ("""SELECT rowid, track_name FROM spotify_table WHERE 
             danceability BETWEEN {danceability1} AND {danceability2} AND
             energy BETWEEN {energy1} AND {energy2} AND
@@ -72,12 +70,19 @@ def getPlaylist(request):
             instrumentalness1=song.instrumentalness-0.25, instrumentalness2=song.instrumentalness+0.25,
             valence1=song.valence-0.25, valence2=song.valence+0.25,
             tempo1=song.tempo-25, tempo2=song.tempo+25)
-        print(query)
         similiarSongs = SpotifyTable.objects.raw(query)
-        for song in similiarSongs:
-            print(song.track_name)
 
         sortedSentSongs, sortedSentsInfo = Rec.recommend(song, similiarSongs)
+
+        temp = Following.objects.raw(('SELECT following.id, followingUID FROM following JOIN person ON following.followingUID = person.spotifyUID WHERE following.currentUser = \'{uid}\'').format(uid = spotifyUID))
+        numFollowing = len(temp) * 0.1
+        
+        for idx in range(len(sortedSentSongs)):
+            temp2 = Following.objects.raw(('SELECT following.id, followingUID FROM following JOIN person ON following.followingUID = person.spotifyUID WHERE following.currentUser = \'{uid}\' AND person.favoriteSong = \"{favSong}\"').format(uid = spotifyUID, favSong = sortedSentSongs[idx].track_name))
+            sortedSentsInfo[idx] += (len(temp2)/numFollowing+0.001)*0.01
+
+        sortedSentSongs = [x for _,x in sorted(zip(sortedSentsInfo,sortedSentSongs), reverse=True)]
+        sortedSentsInfo = [y for y,_ in sorted(zip(sortedSentsInfo,sortedSentSongs), reverse=True)]
 
         if(len(list(sortedSentSongs)) == 0):
             returnVal = {"data": []}
