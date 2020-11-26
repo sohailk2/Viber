@@ -21,9 +21,27 @@ def search(request):
     if request.method == 'POST':
         print("request ->", request.body)
         body = json.loads(request.body)
-        songName = body["songName"]
+        songName = body.get("songName", None)
+        artistName = body.get("artistName", None)
     
-        song_list = SpotifyTable.objects.raw('SELECT rowid, track_name FROM spotify_table WHERE track_name LIKE \'%{name}%\''.format(name = songName))
+        nameQuery = "" if songName == None or songName == "" else "track_name LIKE '%{name}%'".format(name = songName)
+        artistQuery = "" if artistName == None or artistName == "" else "artist_name LIKE '%{name}%'".format(name = artistName)
+   
+        nameArt_and = "AND" if artistName and songName else ""
+
+        # https://stackoverflow.com/questions/18453531/sql-query-sort-by-closest-match
+        # so sort by closest to query
+        # artistOrderBy = "" if artistName == None or artistName == "" else "ORDER BY Difference(artist_name, '%{name}%') DESC".format(name = artistName)
+        artistOrderBY = ""
+
+        # distinct not working because row_id is primary key
+        # to make distinct hack work properly, need to import all other fields manually
+        # if u add genre then duplicates b/c songs have multiple genres
+        selectQuery = "artist_name, track_name, track_id, popularity, acousticness, danceability, duration_ms, energy, instrumentalness, key, liveness, loudness, mode, speechiness, tempo, time_signature, valence"
+        query = "SELECT DISTINCT 1 as rowid, {selectQuery} FROM spotify_table WHERE {nameQuery} {nameArt_and} {artistQuery} {artistOrderBy}".format(selectQuery = selectQuery, nameQuery = nameQuery, nameArt_and = nameArt_and, artistQuery = artistQuery, artistOrderBy = artistOrderBY)
+        # print(query)
+        # return JsonResponse({})
+        song_list = SpotifyTable.objects.raw(query)
 
         if(len(list(song_list)) == 0):
             returnVal = {"data": []}
@@ -48,6 +66,7 @@ def getPlaylist(request):
         #insert into previous searches table
         cursor.execute('INSERT INTO prev_search (track_id, spotifyUID) VALUES ("' + track_id + '", "' + spotifyUID + '")')
 
+        selectQuery = "artist_name, track_name, track_id, popularity, acousticness, danceability, duration_ms, energy, instrumentalness, key, liveness, loudness, mode, speechiness, tempo, time_signature, valence"
         rawQueryForSongName = 'SELECT rowid, track_id FROM spotify_table WHERE track_id = "' + track_id + '"'
         song = (SpotifyTable.objects.raw(rawQueryForSongName))[0]
 
@@ -127,6 +146,13 @@ def getSearches(request, id):
 
     return JsonResponse(returnVal)
 
+def clearSearches(request, id):
+    query = "DELETE FROM prev_search WHERE spotifyUID = '{}'".format(id)
+    # print(query)
+    cursor = connections['default'].cursor()
+    cursor.execute(query)
+
+    return JsonResponse({"status": "success"})
 
 def getFriends(request, id):
     #query database to find current user's friends
@@ -164,15 +190,23 @@ def addFriend(request):
 
 def getFavSong(request, id):
     #query database to get user's favorite song
-    favSong = Person.objects.raw('SELECT id, favoriteSong FROM person WHERE spotifyUID = "' + id + '"')[0]
-    return JsonResponse({"song" : favSong.favoriteSong})
+    person = Person.objects.raw('SELECT id, favoriteSong FROM person WHERE spotifyUID = "' + id + '"')[0]
+    song_id = person.favoriteSong
+
+    #now look up in sql table
+    favSong = SpotifyTable.objects.raw("SELECT rowid, track_name, artist_name FROM spotify_table WHERE track_id = '{song_id}'".format(song_id = song_id))[0]
+
+    return JsonResponse({"song" : {
+        "songName" : favSong.track_name,
+        "artistName" : favSong.artist_name
+        }})
 
 @csrf_exempt #remove the security checks for post request
 def setFavSong(request):
     if request.method == 'POST':
         body = json.loads(request.body)
         userID = body["UID"]
-        favSong = body["song"]
+        favSong = body["track_id"]
 
         cursor = connections['default'].cursor()
         #update database to change user's favorite song

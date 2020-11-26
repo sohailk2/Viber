@@ -21,12 +21,21 @@ class Search extends React.Component {
     }
 
     validate = () => {
-        if(!this.state.formData.hasOwnProperty('songName') || this.state.formData.songName.trim() == ""){
-            this.setState({errors:{"songName": "Enter a name"}});
-            return false;
+
+        //as long as smthn is put in the 
+        let valid = 0;
+
+        if(this.state.formData.hasOwnProperty('songName') && !this.state.formData.songName.trim() == ""){
+            // this.setState({errors:{"songName": "Enter a name"}});
+            // return false;
+            valid++;
         }
 
-        return true;
+        if(this.state.formData.hasOwnProperty('artistName') && !this.state.formData.artistName.trim() == ""){
+            valid++;
+        }
+
+        return valid;
     }
 
     submitForm = () => {
@@ -48,8 +57,17 @@ class Search extends React.Component {
     }
 
     getPlaylist = (songID) => {
-        // alert(songID);
-        this.setState({songSelected: songID});
+
+        //custom callbacks hack so dont have to rewrite the whole thing
+        if (this.props.customCallBack) {
+            this.props.customCallBack(songID);
+        } else {
+            //default behavior to go to similar screen
+            // alert(songID);
+            this.setState({songSelected: songID});
+        }
+
+        
     }
 
     render() {
@@ -73,9 +91,13 @@ class Search extends React.Component {
                         <TextInput id="text-input-id" name="songName" />
                     </FormField>
 
+                    <FormField name="artistName" htmlfor="text-input-id" label="Enter an artist name!">
+                        <TextInput id="text-input-id-2" name="artistName" />
+                    </FormField>
+
                     <Box direction="row" gap="medium">
                         <Button type="submit" primary label="Submit" onClick={() => this.submitForm()} />
-                        <Button type="reset" label="Reset" />
+                        <Button type="reset" label="Reset"/>
                     </Box>
 
                 </Form>
@@ -97,7 +119,8 @@ class Search extends React.Component {
                     >
                         {this.state.playlist.map((song, index) => (<SongComponent key={song.track_id} song={song} onClick={() => {this.getPlaylist(song.track_id)}}/>))}
                     </Box>
-                    <Button margin="large" type="reset" label="Reset" onClick={() => this.setState({ playlist: null })} />
+                    
+                    <Button margin="large" type="reset" label="Reset" onClick={() => {this.setState({ playlist: null });this.setState({ formData : {} })}} />
                 </div>
 
             )
@@ -106,7 +129,6 @@ class Search extends React.Component {
     }
 
 }
-
 
 // function SongComponent(props) {
 //     return (
