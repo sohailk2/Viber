@@ -124,6 +124,13 @@ def getSearches(request, id):
 
     return JsonResponse(returnVal)
 
+def clearSearches(request, id):
+    query = "DELETE FROM prev_search WHERE spotifyUID = '{}'".format(id)
+    # print(query)
+    cursor = connections['default'].cursor()
+    cursor.execute(query)
+
+    return JsonResponse({"status": "success"})
 
 def getFriends(request, id):
     #query database to find current user's friends

@@ -75,6 +75,18 @@ export default function UserInfo(props) {
         setIsOpen(false);
     }
 
+    function reload() {
+        history.push("temp");
+        history.goBack();
+    }
+    function clearSearches() {
+        axios.get(`http://127.0.0.1:8000/viber/clearSearches/${props.userInfo.display_name}/`)
+            .then(() => {
+                // reload()
+            })
+        reload();
+    }
+
     return (
         <div style={{ width: '100%' }}>
             {props.userInfo ?
@@ -104,6 +116,7 @@ export default function UserInfo(props) {
                         <Box style={{ height: '500px', width: '80%' }} overflow="scroll" margin="large" pad="medium" background="dark-3">
                             <div>
                                 <h2>Previous Searches</h2>
+                                <Button primary color="status-critical" fill="horizontal" label="Clear" onClick={clearSearches}/>
                                 <PreviousSearches userInfo={props.userInfo} history={history}/>
                             </div>
                         </Box>
