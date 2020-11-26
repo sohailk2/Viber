@@ -77,13 +77,13 @@ def getPlaylist(request):
         for song in similiarSongs:
             print(song.track_name)
 
-        similiarSongs = Rec.recommend(song, similiarSongs)
+        sortedSentSongs, sortedSentsInfo = Rec.recommend(song, similiarSongs)
 
-        if(len(list(similiarSongs)) == 0):
+        if(len(list(sortedSentSongs)) == 0):
             returnVal = {"data": []}
         else:
             outputArr = []
-            for song in similiarSongs:
+            for song in sortedSentSongs:
                 outputArr.append({"track_id" : song.track_id, "title": song.track_name, "artist_name": song.artist_name})
             returnVal = {"data": outputArr}
 

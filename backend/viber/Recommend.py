@@ -35,9 +35,13 @@ def recommend(orignalSong, songs):
     sentDist = list(map(lambda x : abs(x - originalSongSent), sentiments))
 
     # sort the songs
+    # sortedSongs = [x for _,x in sorted(zip(sentDist,songs))]
+    sortedRaw = sorted(zip(sentDist,songs))
+
     sortedSongs = [x for _,x in sorted(zip(sentDist,songs))]
-    return sortedSongs
-    return songs
+    sortedSents = [x for _,x in sorted(zip(sentDist,songs))]
+
+    return sortedSongs, sortedSents
 
 
 def getSentiment(song):
