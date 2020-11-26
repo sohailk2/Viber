@@ -174,7 +174,7 @@ function FavoriteSong(props) {
             .then(res => {
                 setFavSong(res.data.song);
             })
-    }, [favSong]);
+    }, []);
 
     let updateFavSong = (track_id) => {
         axios.post(`http://127.0.0.1:8000/viber/setFavSong/`, 
