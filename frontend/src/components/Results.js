@@ -56,7 +56,7 @@ class Results extends React.Component {
             )
         } else {
             if (this.state.playlist == null || this.state.playlist.length == 0 || this.state.currSong == null) {
-                return ("NO RESULTS")
+                return ("Loading...")
             } else {
                 return (
                     <Box direction="row">
@@ -67,7 +67,10 @@ class Results extends React.Component {
                                         Results for: 
                                     </Heading>
                                 </span>
-                                <SongComponent key={this.state.currSong.id} song={this.state.currSong} onClick={() => {}} />
+
+                                {/* REMEBER TO RESTORE BACK TO ORIGINAL */}
+                                {/* <SongComponent key={this.state.currSong.id} song={this.state.currSong} onClick={() => {this.getData(this.props.match.params.songID)}} /> */}
+                                <SongComponent key={this.state.currSong.id} song={this.state.currSong} onClick={() => {this.getData(this.props.match.params.songID)}} />
 
 
                             </Main>
