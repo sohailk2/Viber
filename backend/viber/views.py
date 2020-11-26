@@ -67,10 +67,16 @@ def getPlaylist(request):
             instrumentalness1=song.instrumentalness-0.25, instrumentalness2=song.instrumentalness+0.25,
             valence1=song.valence-0.25, valence2=song.valence+0.25,
             tempo1=song.tempo-25, tempo2=song.tempo+25)
-        print(query)
+
         similiarSongs = SpotifyTable.objects.raw(query)
+        # for song in similiarSongs:
+        temp = Following.objects.raw(('SELECT following.id, followingUID FROM following JOIN person ON following.followingUID = person.spotifyUID WHERE following.currentUser = \'{uid}\'').format(uid = spotifyUID))
+        numFollowing = len(temp)
+        
         for song in similiarSongs:
+            temp2 = Following.objects.raw(('SELECT following.id, followingUID FROM following JOIN person ON following.followingUID = person.spotifyUID WHERE following.currentUser = \'{uid}\' AND person.favoriteSong = \"{favSong}\"').format(uid = spotifyUID, favSong = song.track_name))
             print(song.track_name)
+            print("following weight ", len(temp2)/numFollowing)
 
 
         if(len(list(similiarSongs)) == 0):
