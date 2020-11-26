@@ -90,18 +90,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'spotify_table.db',
     }
-    # ,
-    # 'genredb': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'artist_term.db',
-    # },
-    # 'tracksdb': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'track_metadata.db',
-    # },
 }
-
-# DATABASE_ROUTERS = ['backend.routers.Routers']
 
 
 # Password validation

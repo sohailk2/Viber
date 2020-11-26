@@ -113,8 +113,7 @@ def getSearches(request, id):
     UID = id
 
     #querying database to return previous searches
-    song_list = PrevSearches.objects.raw('SELECT id, track_id FROM prev_search WHERE spotifyUID = "' + UID + '"')
-
+    song_list = PrevSearches.objects.raw('SELECT id, track_id FROM prev_search WHERE spotifyUID = "' + UID + '"ORDER BY id DESC LIMIT 10 ')
     if(len(list(song_list)) == 0):
         returnVal = {"data": []}
     else:
@@ -124,7 +123,6 @@ def getSearches(request, id):
             songInfo = (SpotifyTable.objects.raw('SELECT rowid, track_id, track_name FROM spotify_table WHERE track_id = "' + song.track_id + '"'))[0]
             
             outputArr.append({"track_id" : song.track_id, "title": songInfo.track_name, "artist_name": songInfo.artist_name})
-        outputArr.reverse()
         returnVal = {"data": outputArr}
 
     return JsonResponse(returnVal)
