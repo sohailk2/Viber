@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Box, Layer, DropButton, Main, Heading, Form, FormField, TextInput } from 'grommet';
-import Star from './Star.js'
 
 export default function SongComponent(props) {
     return (
