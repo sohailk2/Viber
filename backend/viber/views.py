@@ -187,15 +187,23 @@ def addFriend(request):
 
 def getFavSong(request, id):
     #query database to get user's favorite song
-    favSong = Person.objects.raw('SELECT id, favoriteSong FROM person WHERE spotifyUID = "' + id + '"')[0]
-    return JsonResponse({"song" : favSong.favoriteSong})
+    person = Person.objects.raw('SELECT id, favoriteSong FROM person WHERE spotifyUID = "' + id + '"')[0]
+    song_id = person.favoriteSong
+
+    #now look up in sql table
+    favSong = SpotifyTable.objects.raw("SELECT rowid, track_name, artist_name FROM spotify_table WHERE track_id = '{song_id}'".format(song_id = song_id))[0]
+
+    return JsonResponse({"song" : {
+        "songName" : favSong.track_name,
+        "artistName" : favSong.artist_name
+        }})
 
 @csrf_exempt #remove the security checks for post request
 def setFavSong(request):
     if request.method == 'POST':
         body = json.loads(request.body)
         userID = body["UID"]
-        favSong = body["song"]
+        favSong = body["track_id"]
 
         cursor = connections['default'].cursor()
         #update database to change user's favorite song

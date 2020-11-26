@@ -7,7 +7,7 @@ import Modal from 'react-modal';
 
 import SongComponent from './SongComponent';
 import EditableText from './EditableText'
-
+import Search from './Search'
 
 export default function UserInfo(props) {
 
@@ -23,8 +23,8 @@ export default function UserInfo(props) {
             left: '50%',
             right: 'auto',
             bottom: 'auto',
-            width: '50%',
-            height: '50%',
+            width: '100%',
+            height: '100%',
             padding: '0px',
             marginRight: '-50%',
             border: '',
@@ -105,7 +105,7 @@ export default function UserInfo(props) {
                         style={customStyles}
                         contentLabel="Example Modal"
                     >
-                        <EditUser userInfo={props.userInfo} />
+                        <EditUser userInfo={props.userInfo} reload={reload}/>
                     </Modal>
 
                     <Box
@@ -156,9 +156,9 @@ function EditUser(props) {
 
             <Text size="large" >Followers Favorite Songs: <Text size="medium" color="brand">[]</Text></Text>
 
-            <Text size="large" >Most Searched Genres: <Text size="medium" color="brand">Pop</Text></Text>
+            {/* <Text size="large" >Most Searched Genres: <Text size="medium" color="brand">Pop</Text></Text> */}
 
-            <FavoriteSong userInfo={props.userInfo}/>
+            <FavoriteSong userInfo={props.userInfo} reload = {props.reload}/>
 
         </Box>
 
@@ -176,27 +176,29 @@ function FavoriteSong(props) {
             })
     }, [favSong]);
 
-    let updateFavSong = (newSong) => {
+    let updateFavSong = (track_id) => {
         axios.post(`http://127.0.0.1:8000/viber/setFavSong/`, 
-        {"UID": props.userInfo.display_name, "song": newSong})
+        {"UID": props.userInfo.display_name, "track_id": track_id})
         .then(res => {
-            
+            props.reload();
         }) 
     };
 
     return (
         <Box>
-            <h3>My Favorite Song: (Click on text below to edit)</h3>
+            <h3>My Favorite Song: 
             {/* <TextInput
                 placeholder="type here"
                 value={value}
                 onChange={event => setValue(event.target.value)}
             /> */}
             {favSong ? 
-                <EditableText value={favSong} callback = {updateFavSong} editClassName="form-control"/>
+                <span>{favSong.songName} by {favSong.artistName}</span>
                 :
                 'Loading...'
             }
+            </h3>
+            <Search customCallBack={(track_id) => {updateFavSong(track_id)}}/>
 
         </Box>
     );

@@ -68,7 +68,7 @@ class Terms(models.Model):
 
 class PrevSearches(models.Model):
     track_id = models.TextField(blank=True, null=True)
-    spotifyUID = models.TextField(blank=True, null=True)
+    spotifyUID = models.TextField(blank=True, null=True, db_index=True)
 
     class Meta:
         db_table = 'prev_search'
@@ -87,7 +87,7 @@ class Following(models.Model):
 
 class SpotifyTable(models.Model):
     rowid = models.TextField(primary_key=True, blank=True, null=False)
-    genre = models.TextField(blank=True, null=True)
+    a = models.TextField(blank=True, null=True)
     artist_name = models.TextField(blank=True, null=True)
     track_name = models.TextField(blank=True, null=True)
     track_id = models.TextField(blank=True, null=False)

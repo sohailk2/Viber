@@ -57,8 +57,17 @@ class Search extends React.Component {
     }
 
     getPlaylist = (songID) => {
-        // alert(songID);
-        this.setState({songSelected: songID});
+
+        //custom callbacks hack so dont have to rewrite the whole thing
+        if (this.props.customCallBack) {
+            this.props.customCallBack(songID);
+        } else {
+            //default behavior to go to similar screen
+            // alert(songID);
+            this.setState({songSelected: songID});
+        }
+
+        
     }
 
     render() {
@@ -110,6 +119,7 @@ class Search extends React.Component {
                     >
                         {this.state.playlist.map((song, index) => (<SongComponent key={song.track_id} song={song} onClick={() => {this.getPlaylist(song.track_id)}}/>))}
                     </Box>
+                    
                     <Button margin="large" type="reset" label="Reset" onClick={() => {this.setState({ playlist: null });this.setState({ formData : {} })}} />
                 </div>
 
@@ -119,7 +129,6 @@ class Search extends React.Component {
     }
 
 }
-
 
 // function SongComponent(props) {
 //     return (
