@@ -106,6 +106,9 @@ class SpotifyTable(models.Model):
     time_signature = models.TextField(blank=True, null=True)
     valence = models.FloatField(blank=True, null=True)
 
+    def __lt__(self, other):
+        return self.track_name < other.track_name
+
     class Meta:
         managed = False
         db_table = 'spotify_table'

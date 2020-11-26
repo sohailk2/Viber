@@ -8,6 +8,11 @@ from django.db import connections
 
 import random
 
+from viber import Recommend as Rec
+
+from dotenv import load_dotenv
+load_dotenv()
+
 def index(request):
     return HttpResponse("Hello, world. You're at the viber index.")
 
@@ -72,6 +77,7 @@ def getPlaylist(request):
         for song in similiarSongs:
             print(song.track_name)
 
+        similiarSongs = Rec.recommend(song, similiarSongs)
 
         if(len(list(similiarSongs)) == 0):
             returnVal = {"data": []}
@@ -113,6 +119,7 @@ def getSearches(request, id):
             songInfo = (SpotifyTable.objects.raw('SELECT rowid, track_id, track_name FROM spotify_table WHERE track_id = "' + song.track_id + '"'))[0]
             
             outputArr.append({"track_id" : song.track_id, "title": songInfo.track_name, "artist_name": songInfo.artist_name})
+        outputArr.reverse()
         returnVal = {"data": outputArr}
 
     return JsonResponse(returnVal)
