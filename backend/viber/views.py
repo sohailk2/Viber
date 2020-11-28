@@ -37,7 +37,7 @@ def search(request):
         # distinct not working because row_id is primary key
         # to make distinct hack work properly, need to import all other fields manually
         # if u add genre then duplicates b/c songs have multiple genres
-        selectQuery = "artist_name, track_name, track_id, popularity, acousticness, danceability, duration_ms, energy, instrumentalness, key, liveness, loudness, mode, speechiness, tempo, time_signature, valence"
+        selectQuery = "artist_name, track_name, track_id, acousticness, danceability, duration_ms, energy, instrumentalness, key, liveness, loudness, mode, speechiness, tempo, time_signature, valence"
         query = "SELECT DISTINCT 1 as rowid, {selectQuery} FROM spotify_table WHERE {nameQuery} {nameArt_and} {artistQuery} {artistOrderBy}".format(selectQuery = selectQuery, nameQuery = nameQuery, nameArt_and = nameArt_and, artistQuery = artistQuery, artistOrderBy = artistOrderBY)
         # print(query)
         # return JsonResponse({})
