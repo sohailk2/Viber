@@ -70,7 +70,18 @@ def getPlaylist(request):
         rawQueryForSongName = 'SELECT rowid, track_id FROM spotify_table WHERE track_id = "' + track_id + '"'
         song = (SpotifyTable.objects.raw(rawQueryForSongName))[0]
 
-        query = ("""SELECT rowid, track_name FROM spotify_table WHERE 
+        eucldianDistanceForm = '(POWER({dance}, 2) + POWER({energy}, 2) + POWER({loud}, 2) + POWER({speech}, 2) + POWER({acoustic}, 2) + POWER({instrum}, 2) + POWER({valence}, 2)) AS eucldianDist'.format(
+            dance = str(song.danceability) + " - danceability",
+            energy = str(song.energy) + " - energy",
+            loud = str(song.loudness) + " - loudness",
+            speech = str(song.speechiness) + " - speechiness",
+            acoustic = str(song.acousticness) + " - acousticness",
+            instrum = str(song.instrumentalness) + " - instrumentalness",
+            valence = str(song.valence) + " - valence",
+            )
+
+        selectQuery = "artist_name, track_name, track_id, acousticness, danceability, duration_ms, energy, instrumentalness, key, liveness, loudness, mode, speechiness, tempo, time_signature, valence"
+        query = ("""SELECT DISTINCT 1 as rowid, {selectQuery}, {eucldianDistanceForm} FROM spotify_table WHERE 
             danceability BETWEEN {danceability1} AND {danceability2} AND
             energy BETWEEN {energy1} AND {energy2} AND
             loudness BETWEEN {loudness1} AND {loudness2} AND
@@ -79,8 +90,11 @@ def getPlaylist(request):
             instrumentalness BETWEEN {instrumentalness1} AND {instrumentalness2} AND
             valence BETWEEN {valence1} AND {valence2} AND
             tempo BETWEEN {tempo1} AND {tempo2}
-            LIMIT 20
+            AND track_name <> "{track_name}"
+            ORDER BY eucldianDist
+            LIMIT 100
             """).format(
+                selectQuery = selectQuery,
             danceability1=song.danceability-0.25, danceability2=song.danceability+0.25, 
             energy1=song.energy-0.25, energy2=song.energy+0.25,
             loudness1=song.loudness-0.25,loudness2=song.loudness+0.25,
@@ -88,8 +102,11 @@ def getPlaylist(request):
             acousticness1=song.acousticness-0.25, acousticness2=song.acousticness+0.25,
             instrumentalness1=song.instrumentalness-0.25, instrumentalness2=song.instrumentalness+0.25,
             valence1=song.valence-0.25, valence2=song.valence+0.25,
-            tempo1=song.tempo-25, tempo2=song.tempo+25)
+            tempo1=song.tempo-25, tempo2=song.tempo+25, eucldianDistanceForm = eucldianDistanceForm,
+            track_name = song.track_name)
         similiarSongs = SpotifyTable.objects.raw(query)
+
+        # remove duplicates from this set        
 
         sortedSentSongs, sortedSentsInfo = Rec.recommend(song, similiarSongs)
 
@@ -98,7 +115,8 @@ def getPlaylist(request):
         
         for idx in range(len(sortedSentSongs)):
             temp2 = Following.objects.raw(('SELECT following.id, followingUID FROM following JOIN person ON following.followingUID = person.spotifyUID WHERE following.currentUser = \'{uid}\' AND person.favoriteSong = \"{favSong}\"').format(uid = spotifyUID, favSong = sortedSentSongs[idx].track_name))
-            sortedSentsInfo[idx] += (len(temp2)/numFollowing+0.001)*0.01
+            friendFactor = 0.01
+            sortedSentsInfo[idx] += (len(temp2)/(numFollowing+0.001))*friendFactor
 
         sortedSentSongs = [x for _,x in sorted(zip(sortedSentsInfo,sortedSentSongs), reverse=True)]
         sortedSentsInfo = [y for y,_ in sorted(zip(sortedSentsInfo,sortedSentSongs), reverse=True)]
