@@ -29,7 +29,8 @@ def search(request):
         songName = body.get("songName", None)
         artistName = body.get("artistName", None)
     
-        nameQuery = "" if songName == None or songName == "" else "track_name LIKE '%{name}%'".format(name = songName)
+        # nameQuery = "" if songName == None or songName == "" else "track_name LIKE '%{name}%'".format(name = songName)
+        nameQuery = "" if songName == None or songName == "" else "track_name LIKE ?"
         artistQuery = "" if artistName == None or artistName == "" else "artist_name LIKE '%{name}%'".format(name = artistName)
    
         nameArt_and = "AND" if artistName and songName else ""
@@ -46,7 +47,8 @@ def search(request):
         query = "SELECT DISTINCT 1 as rowid, {selectQuery} FROM spotify_table WHERE {nameQuery} {nameArt_and} {artistQuery} {artistOrderBy}".format(selectQuery = selectQuery, nameQuery = nameQuery, nameArt_and = nameArt_and, artistQuery = artistQuery, artistOrderBy = artistOrderBY)
         # print(query)
         # return JsonResponse({})
-        song_list = SpotifyTable.objects.raw(query)
+        nameParams = songName
+        song_list = SpotifyTable.objects.raw(query, nameParams)
 
         if(len(list(song_list)) == 0):
             returnVal = {"data": []}

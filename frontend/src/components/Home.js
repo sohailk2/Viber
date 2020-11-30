@@ -22,7 +22,7 @@ class Home extends React.Component {
 
     spotifyLogin = (clientId, callback) => {
 
-        const redirect_uri = "http://localhost:3000/callback/";
+        const redirect_uri = " callback/";
         var scopes = 'user-read-private user-read-email';
         let req = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&redirect_uri=${redirect_uri}&scope=${encodeURIComponent(scopes)}&show_dialog=true`;
         let popup = window.open(req,"_self",
