@@ -6,12 +6,17 @@ from viber.models import PrevSearches, Following, Person, SpotifyTable
 import json
 from django.db import connections
 
+from pymongo import MongoClient
+
 import random
 
 from viber import Recommend as Rec
 
 from dotenv import load_dotenv
 load_dotenv()
+
+mongo_client = MongoClient("mongodb://127.0.0.1:27017/")
+mongoViber_db = mongo_client.viberSentiment
 
 def index(request):
     return HttpResponse("Hello, world. You're at the viber index.")
@@ -108,7 +113,7 @@ def getPlaylist(request):
 
         # remove duplicates from this set        
 
-        sortedSentSongs, sortedSentsInfo = Rec.recommend(song, similiarSongs)
+        sortedSentSongs, sortedSentsInfo = Rec.recommend(song, similiarSongs, mongoViber_db)
 
         temp = Following.objects.raw(('SELECT following.id, followingUID FROM following JOIN person ON following.followingUID = person.spotifyUID WHERE following.currentUser = \'{uid}\'').format(uid = spotifyUID))
         numFollowing = len(temp) * 0.1

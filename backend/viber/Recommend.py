@@ -26,10 +26,11 @@ Pseudocode:
     2) Sort list by positivity score for each song
 
 """
-def recommend(orignalSong, songs):
+def recommend(orignalSong, songs, viberDB):
 
-    originalSongSent = getSentiment(orignalSong)
-    sentiments = list(map(getSentiment, songs[:3]))
+    originalSongSent = getSentiment(orignalSong, viberDB)
+    # sentiments = list(map(getSentiment, songs[:3], viberDB))
+    sentiments = [getSentiment(x, viberDB) for x in songs[:10]]
     
     # sentiments compared with original song
     sentDist = list(map(lambda x : abs(x - originalSongSent), sentiments))
@@ -38,14 +39,20 @@ def recommend(orignalSong, songs):
     # sortedSongs = [x for _,x in sorted(zip(sentDist,songs))]
     sortedRaw = sorted(zip(sentDist,songs))
 
-    sortedSongs = [x for _,x in sorted(zip(sentDist,songs))]
-    sortedSents = [y for y,_ in sorted(zip(sentDist,songs))]
+    sortedSongs = [x for _,x in sortedRaw]
+    sortedSents = [y for y,_ in sortedRaw]
 
     return sortedSongs, sortedSents
 
 
-def getSentiment(song):
+
+def getSentiment(song, viberDB):
     # first get the lyrics
+    cached = viberDB.scores.find_one({"track_id" : song.track_id})
+    if cached:
+        print("CACHED SONG: ", song.track_name)
+        return cached['score']
+
     lyrics = getLyrics(song)
     posList = []
     negList = []
@@ -64,7 +71,10 @@ def getSentiment(song):
     print("negList", negWordCount)
 
     # adding .001 to account for 0 words found
-    return (posWordCount - negWordCount) / (length + .001)
+    score = (posWordCount - negWordCount) / (length + .001)
+    cachedVal = { "track_id": song.track_id, "score": score}
+    viberDB.scores.insert_one(cachedVal)
+    return score
 
     
 
