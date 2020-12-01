@@ -17,6 +17,7 @@ load_dotenv()
 
 mongo_client = MongoClient("mongodb://127.0.0.1:27017/")
 mongoViber_db = mongo_client.viberSentiment
+mongoViber_grammy = mongo_client.viberAwards
 
 def index(request):
     return HttpResponse("Hello, world. You're at the viber index.")
@@ -29,8 +30,8 @@ def search(request):
         songName = body.get("songName", None)
         artistName = body.get("artistName", None)
     
-        # nameQuery = "" if songName == None or songName == "" else "track_name LIKE '%{name}%'".format(name = songName)
-        nameQuery = "" if songName == None or songName == "" else "track_name LIKE ?"
+        nameQuery = "" if songName == None or songName == "" else "track_name LIKE '%{name}%'".format(name = songName)
+        # nameQuery = "" if songName == None or songName == "" else "track_name LIKE ?"
         artistQuery = "" if artistName == None or artistName == "" else "artist_name LIKE '%{name}%'".format(name = artistName)
    
         nameArt_and = "AND" if artistName and songName else ""
@@ -47,8 +48,8 @@ def search(request):
         query = "SELECT DISTINCT 1 as rowid, {selectQuery} FROM spotify_table WHERE {nameQuery} {nameArt_and} {artistQuery} {artistOrderBy}".format(selectQuery = selectQuery, nameQuery = nameQuery, nameArt_and = nameArt_and, artistQuery = artistQuery, artistOrderBy = artistOrderBY)
         # print(query)
         # return JsonResponse({})
-        nameParams = songName
-        song_list = SpotifyTable.objects.raw(query, nameParams)
+        # nameParams = songName
+        song_list = SpotifyTable.objects.raw(query)
 
         if(len(list(song_list)) == 0):
             returnVal = {"data": []}
@@ -249,5 +250,9 @@ def loginUser(request):
         cursor = connections['default'].cursor()
         #insert person into database on first time login
         cursor.execute('INSERT INTO person (spotifyUID, favoriteSong) VALUES ("' + userID + '", "Click to add favorite song")')
+
+    return JsonResponse({"success" : "true"})
+
+def getSongFeatures(request, id):  
 
     return JsonResponse({"success" : "true"})
