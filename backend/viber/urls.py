@@ -15,6 +15,5 @@ urlpatterns = [
     path('getFavSong/<str:id>/', views.getFavSong, name='getFavSong'),
     path('setFavSong/', views.setFavSong, name='setFavSong'),
     path('loginUser/', views.loginUser, name='loginUser'),
-
-
+    path('getSongAwards/<str:id>/', views.getSongAwards, name='getSongAwards')
 ]

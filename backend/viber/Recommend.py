@@ -92,4 +92,3 @@ def getLyrics(song):
     file.close()
 
     return line.split(" ")
-

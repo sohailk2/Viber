@@ -134,7 +134,7 @@ def getPlaylist(request):
         else:
             outputArr = []
             for song in sortedSentSongs:
-                outputArr.append({"track_id" : song.track_id, "title": song.track_name, "artist_name": song.artist_name})
+                outputArr.append({"track_id" : song.track_id, "title": song.track_name, "artist_name": song.artist_name, "danceability": song.danceability, "energy": song.energy, "loudness": song.loudness, "speechiness": song.speechiness, "acousticness": song.acousticness, "instrumentalness": song.instrumentalness, "valence" : song.valence})
             returnVal = {"data": outputArr}
 
         return JsonResponse(returnVal)
@@ -145,12 +145,15 @@ def getPlaylist(request):
 def getSong(request, id):
     track_id = id
     #finding associated song title and artist name
-    rawQueryForSongName = 'SELECT rowid, track_id, track_name FROM spotify_table WHERE track_id = "' + track_id + '"'
-    songName = (SpotifyTable.objects.raw(rawQueryForSongName))[0].track_name
-    rawQueryForArtistName = 'SELECT rowid, track_id, artist_name FROM spotify_table WHERE track_id = "' + track_id + '"'
-    artistName = (SpotifyTable.objects.raw(rawQueryForArtistName))[0].artist_name
+    # rawQueryForSongName = 'SELECT rowid, track_id, track_name FROM spotify_table WHERE track_id = "' + track_id + '"'
+    # songName = (SpotifyTable.objects.raw(rawQueryForSongName))[0].track_name
+    # rawQueryForArtistName = 'SELECT rowid, track_id, artist_name FROM spotify_table WHERE track_id = "' + track_id + '"'
+    # artistName = (SpotifyTable.objects.raw(rawQueryForArtistName))[0].artist_name
 
-    sampleResponse = {"track_id":track_id, "title": songName, "artist_name": artistName}
+    query = 'SELECT rowid, * FROM spotify_table WHERE track_id = "{track_id}"'.format(track_id = id)
+    song = (SpotifyTable.objects.raw(query))[0]
+
+    sampleResponse = {"track_id":track_id, "title": song.track_name, "artist_name": song.artist_name, "danceability": song.danceability, "energy": song.energy, "loudness": song.loudness, "speechiness": song.speechiness, "acousticness": song.acousticness, "instrumentalness": song.instrumentalness, "valence" : song.valence}
     return JsonResponse(sampleResponse)
 
 def getSearches(request, id):
@@ -253,6 +256,15 @@ def loginUser(request):
 
     return JsonResponse({"success" : "true"})
 
-def getSongFeatures(request, id):  
+def getSongAwards(request, id):  
 
-    return JsonResponse({"success" : "true"})
+    print("SONG ID: ", id)
+    # #finding associated song title and artist name
+    query = 'SELECT rowid, track_id, track_name, artist_name FROM spotify_table WHERE track_id = "{track_id}"'.format(track_id = id)
+    songName = (SpotifyTable.objects.raw(query))[0].track_name
+    artistName = (SpotifyTable.objects.raw(query))[0].artist_name
+    result = mongoViber_grammy.awards.find_one({"track_name" : songName, "artist_name" : artistName}, {"_id": 0, "track_name" : 0, "artist_name": 0})
+    # print(result)
+    if result == None:
+        result = {}
+    return JsonResponse(result)

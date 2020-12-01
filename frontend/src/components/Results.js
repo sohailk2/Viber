@@ -37,7 +37,7 @@ class Results extends React.Component {
             "UID" : this.props.userInfo.display_name
         })
             .then(res => {
-                console.log("DATA", res.data.data);
+                // console.log("DATA", res.data.data);
                 this.setState({ playlist: res.data.data, error: res.data.error })
             });
     }
@@ -70,7 +70,7 @@ class Results extends React.Component {
 
                                 {/* REMEBER TO RESTORE BACK TO ORIGINAL */}
                                 {/* <SongComponent key={this.state.currSong.id} song={this.state.currSong} onClick={() => {this.getData(this.props.match.params.songID)}} /> */}
-                                <SongComponent key={this.state.currSong.id} song={this.state.currSong} onClick={() => {this.getData(this.props.match.params.songID)}} />
+                                <SongComponent key={this.state.currSong.id} song={this.state.currSong} dropAlign={{ bottom: 'top', right: 'right' }} dropContent={<SimilarityMetric song={this.state.currSong}/>} onClick={() => {this.getData(this.props.match.params.songID)}} />
 
 
                             </Main>
@@ -82,7 +82,7 @@ class Results extends React.Component {
                             pad="small"
                             style={{ width: "500px", height: '500px' }}
                         >
-                            {this.state.playlist.map((song, index) => (<SongComponent key={song.id} song={song} dropContent={<SimilarityMetric/>} onClick={() => { }} />))}
+                            {this.state.playlist.map((song, index) => (<SongComponent key={song.id} song={song} dropAlign={{bottom: 'bottom', left: 'right', right: 'right' }} dropContent={<SimilarityMetric song={song}/>} onClick={() => { }} />))}
                         </Box>
                     </Box>
                 )
@@ -94,21 +94,31 @@ class Results extends React.Component {
 }
 
 function SimilarityMetric(props) {
+    console.log("SONG INFO:", props.song);
+    // alert("SONG INFO:", props.song);
     return (
         <Box margin="large">
             <Main>Similarity Metrics</Main>
             <Chart
-            bounds={[[0, 7], [0, 100]]}
+            bounds={[[0, 4], [0, 1]]}
             animate
+            // values={[
+            //     { value: [6, props.song.valence], label: 'valence' },
+            //     { value: [5, props.song.instrumentalness], label: 'instrumentalness' },
+            //     { value: [4, props.song.acousticness], label: 'acousticness' },
+            //     { value: [3, props.song.speechiness], label: 'speechiness' },
+            //     // { value: [2, props.song.loudness], label: 'loudness' },
+            //     { value: [1, props.song.energy], label: 'energy' },
+            //     { value: [0, props.song.danceability], label: 'danceability' },
+            // ]}
             values={[
-                { value: [7, 100], label: 'one hundred' },
-                { value: [6, 70], label: 'seventy' },
-                { value: [5, 60], label: 'sixty' },
-                { value: [4, 80], label: 'eighty' },
-                { value: [3, 40], label: 'forty' },
-                { value: [2, 0], label: 'zero' },
-                { value: [1, 30], label: 'thirty' },
-                { value: [0, 60], label: 'sixty' },
+                { value: [4, props.song.valence], label: 'valence' },
+                // { value: [4, props.song.instrumentalness * 10], label: 'instrumentalness' },
+                { value: [3, props.song.acousticness], label: 'acousticness' },
+                { value: [2, props.song.speechiness], label: 'speechiness' },
+                // { value: [2, props.song.loudness], label: 'loudness' },
+                { value: [1, props.song.energy], label: 'energy' },
+                { value: [0, props.song.danceability], label: 'danceability' },
             ]}
             aria-label="chart"
         />
