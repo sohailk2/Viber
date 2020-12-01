@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 mongo_client = MongoClient("mongodb://127.0.0.1:27017/")
-mongoViber_db = mongo_client.viberSentiment
+mongoViber_db = mongo_client.Vibersentiment
 mongoViber_grammy = mongo_client.viberAwards
 
 def index(request):
@@ -41,14 +41,8 @@ def search(request):
         # artistOrderBy = "" if artistName == None or artistName == "" else "ORDER BY Difference(artist_name, '%{name}%') DESC".format(name = artistName)
         artistOrderBY = ""
 
-        # distinct not working because row_id is primary key
-        # to make distinct hack work properly, need to import all other fields manually
-        # if u add genre then duplicates b/c songs have multiple genres
         selectQuery = "artist_name, track_name, track_id, acousticness, danceability, duration_ms, energy, instrumentalness, key, liveness, loudness, mode, speechiness, tempo, time_signature, valence"
         query = "SELECT DISTINCT 1 as rowid, {selectQuery} FROM spotify_table WHERE {nameQuery} {nameArt_and} {artistQuery} {artistOrderBy}".format(selectQuery = selectQuery, nameQuery = nameQuery, nameArt_and = nameArt_and, artistQuery = artistQuery, artistOrderBy = artistOrderBY)
-        # print(query)
-        # return JsonResponse({})
-        # nameParams = songName
         song_list = SpotifyTable.objects.raw(query)
 
         if(len(list(song_list)) == 0):
@@ -122,7 +116,7 @@ def getPlaylist(request):
         numFollowing = len(temp) * 0.1
         
         for idx in range(len(sortedSentSongs)):
-            temp2 = Following.objects.raw(('SELECT following.id, followingUID FROM following JOIN person ON following.followingUID = person.spotifyUID WHERE following.currentUser = \'{uid}\' AND person.favoriteSong = \"{favSong}\"').format(uid = spotifyUID, favSong = sortedSentSongs[idx].track_name))
+            temp2 = Following.objects.raw(('SELECT following.id, followingUID FROM following JOIN person ON following.followingUID = person.spotifyUID WHERE following.currentUser = \'{uid}\' AND person.favoriteSong = \"{favSong}\"').format(uid = spotifyUID, favSong = sortedSentSongs[idx].track_id))
             friendFactor = 0.01
             sortedSentsInfo[idx] += (len(temp2)/(numFollowing+0.001))*friendFactor
 
@@ -144,11 +138,6 @@ def getPlaylist(request):
 
 def getSong(request, id):
     track_id = id
-    #finding associated song title and artist name
-    # rawQueryForSongName = 'SELECT rowid, track_id, track_name FROM spotify_table WHERE track_id = "' + track_id + '"'
-    # songName = (SpotifyTable.objects.raw(rawQueryForSongName))[0].track_name
-    # rawQueryForArtistName = 'SELECT rowid, track_id, artist_name FROM spotify_table WHERE track_id = "' + track_id + '"'
-    # artistName = (SpotifyTable.objects.raw(rawQueryForArtistName))[0].artist_name
 
     query = 'SELECT rowid, * FROM spotify_table WHERE track_id = "{track_id}"'.format(track_id = id)
     song = (SpotifyTable.objects.raw(query))[0]
